@@ -33,31 +33,12 @@ function html(p, slug, rt) {
   })
   hold.remove()
   return '<!doctype html>\n<html lang="' + LS[0] + '">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    '<title>' + esc(tx(p.title) || 'ñ press') + '</title>\n' +
+    '<title>' + esc(tx(p.title) || 'untitled') + '</title>\n' +
     '<link rel="icon" href="' + rt + esc(s.icon || 'assets/favicon.svg') + '">\n' +
     '<link rel="stylesheet" href="' + rt + 'page.css">\n' +
     '</head>\n<body data-rt="' + rt + '" data-p="' + esc(slug) + '"' + (bs ? ' style="' + esc(bs) + '"' : '') + '>\n' +
     box.outerHTML + '\n' +
     '<script src="' + rt + 'render.js"></script>\n<script src="' + rt + 'site.js"></script>\n</body>\n</html>\n'
-}
-
-async function put(path, txt) {
-  var ps = path.split('/'), d = dir, n = ps.pop()
-  for (var x of ps) d = await d.getDirectoryHandle(x, { create: true })
-  var w = await (await d.getFileHandle(n, { create: true })).createWritable()
-  await w.write(txt)
-  await w.close()
-}
-
-async function gone(slug) {
-  var d
-  try {
-    d = await dir.getDirectoryHandle(slug)
-  } catch (e) {
-    return
-  }
-  for await (var n of d.keys()) if (n != 'index.html') return
-  await dir.removeEntry(slug, { recursive: true })
 }
 
 var PO = []
@@ -78,16 +59,7 @@ function build() {
   L = kl
   MOB = km
   CUR = kc
-  RT = ''
+  RT = 'site/'
   EVX = 0
   return { f: f, now: now, del: del }
-}
-
-async function pub() {
-  var b = build()
-  for (var k in b.f) await put(k, b.f[k])
-  for (var o of b.del) await gone(o)
-  s.out = b.now
-  draw()
-  return s.pages.length
 }

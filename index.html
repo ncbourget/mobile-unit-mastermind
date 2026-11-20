@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mastermind / ñ press</title>
+<title>Mobile Unit Mastermind</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="page.css">
 <link rel="stylesheet" href="mastermind.css">
 </head>
 <body class="mm">
 <div id="tb">
-  <b>ñ mastermind</b>
-  <button id="o">open folder</button>
+  <b>Mastermind</b>
+  <button id="o" title="switch to another site">connect</button>
   <button id="sv">save</button>
   <button id="pv">preview</button>
   <i></i>
@@ -37,8 +37,6 @@
     <option value="gallery">gallery</option>
     <option value="video">video</option>
     <option value="embed">embed</option>
-    <option value="events">events (calendar)</option>
-    <option value="join">mailing list signup</option>
     <option value="table">table</option>
   </select>
   <span id="st"></span>
@@ -46,7 +44,7 @@
   <button id="re" title="redo  ⌘⇧Z"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg></button>
   <button id="hk" title="keyboard shortcuts">?</button>
   <button id="pf" class="ok" title="preflight"><i></i><span></span></button>
-  <a id="vw" href="./" target="_blank">saved site</a>
+  <a id="vw" href="site/" target="_blank">saved site</a>
 </div>
 <div id="lk" hidden></div>
 <div id="wr"><div id="cvp"></div><div id="cv"></div></div>
@@ -80,10 +78,9 @@
   <p>double click a marquee to stop it and type</p>
   <p>tables: click a cell, shift click a range, drag the blue lines to resize</p>
   <p>groups: each thing holds a side, so headers stay put when the screen narrows</p>
-  <p>saved is not live. the site only changes when someone presses publish</p>
+  <p>saving writes your pages into your folder or pushes them to your repo. where it goes live is up to your host</p>
   <p>the dot next to ? is preflight. red or orange means something needs a look</p>
   <p>in the type lab, click the style name and type to try your own words</p>
-  <p>only one person edits at a time. ask to take over and they hear a chime</p>
 </div>
 <div id="lib" hidden>
   <div class="lw">
@@ -92,6 +89,31 @@
   </div>
 </div>
 <div id="pn"></div>
+<div id="connect" hidden>
+  <div class="cn">
+    <button class="cn-close" title="back to the editor" hidden>×</button>
+    <h1>Mobile Unit Mastermind</h1>
+    <p class="cn-lede">design pages for a website you already have, or start a new one. you get plain html, css and js back.</p>
+    <section>
+      <h2>a folder on this computer</h2>
+      <p class="cn-folder-note"></p>
+      <div class="cn-row"><button id="cn-folder">open a folder</button><button id="cn-again" hidden></button></div>
+    </section>
+    <section>
+      <h2>a github repo</h2>
+      <form id="cn-gh" autocomplete="off">
+        <label>repo<input name="repo" placeholder="owner/your-site" spellcheck="false" required></label>
+        <label>branch<input name="branch" placeholder="the default branch" spellcheck="false"></label>
+        <label>access token<input name="token" type="password" spellcheck="false" required></label>
+        <p class="cn-help"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">make a token on github</a>: fine-grained, only this repo, repository permission contents: read and write.</p>
+        <label class="cn-ck"><input name="remember" type="checkbox">remember on this computer</label>
+        <div class="cn-row"><button>connect</button><a href="#" class="cn-forget">forget the token</a></div>
+      </form>
+    </section>
+    <p class="cn-err"></p>
+    <p class="cn-note">nothing goes to a mastermind server. your files go straight between this browser and your folder or github, and the token stays in this browser.</p>
+  </div>
+</div>
 <script src="render.js"></script>
 <script src="mastermind.js"></script>
 <script src="photos.js"></script>
@@ -99,7 +121,9 @@
 <script src="publish.js"></script>
 <script src="typelab.js"></script>
 <script src="preflight.js"></script>
-<script src="team.js"></script>
 <script src="demos.js"></script>
+<script src="folder-storage.js"></script>
+<script src="github-storage.js"></script>
+<script src="connect.js"></script>
 </body>
 </html>

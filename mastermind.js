@@ -1,4 +1,4 @@
-var TM = null, RO = false, PV = {}, s, dir, sel = null, SS = [], pi = 0, dirt = false
+var TM = null, RO = false, PV = {}, s, sel = null, SS = [], pi = 0, dirt = false
 var UN = [], RE = [], LAST = null, dt
 var cv = document.getElementById('cv'), pin = document.getElementById('pin')
 var pn = document.getElementById('pn')
@@ -1710,11 +1710,11 @@ rt.onclick = function (e) {
 var df = {
   text: { w: 4, h: 1, html: 'text' },
   image: { w: 4, h: 10, src: '' },
-  marquee: { w: 12, h: 3, html: 'ñ press', speed: 20 },
+  marquee: { w: 12, h: 3, html: 'your words here', speed: 20 },
   nav: { w: 3, h: 10, items: [{ t: 'link', href: '#' }, { t: 'link', href: '#' }, { t: 'link', href: '#' }] },
   tabs: { w: 9, h: 3, items: [{ t: 'prints', href: '#prints' }, { t: 'zines', href: '#zines' }], flt: 'Filter by' },
   cards: { w: 9, h: 30, cols: 3, per: 9, items: [{ t: 'item', price: '$20', tag: 'prints' }, { t: 'item', price: '$10', tag: 'zines' }, { t: 'item', price: '$15', was: '$20', badge: 'SALE!', tag: 'prints' }] },
-  banner: { w: 9, h: 10, src: '', html: 'ñ press', bg: '#f4c6d8' },
+  banner: { w: 9, h: 10, src: '', html: 'banner', bg: '#f4c6d8' },
   button: { w: 3, h: 3, t: 'button', bg: '#e8382c', fg: '#ffffff' },
   lang: { w: 2, h: 1 },
   gallery: { w: 9, h: 17, mode: 'grid', cols: 3, zoom: true, items: [] },
@@ -1835,12 +1835,6 @@ document.addEventListener('mouseover', function (e) {
 document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.qt')) e.preventDefault() }, true)
 
 var FF = [
-  ['ñ press', [
-    ['Degular', '"Degular", Helvetica, Arial, sans-serif', [100, 300, 400, 500, 600, 700, 900], 14],
-    ['Degular Display', '"Degular Display", Helvetica, Arial, sans-serif', [100, 300, 400], 5],
-    ['Degular Mono', '"Degular Mono", Menlo, monospace', [100, 300, 400, 500, 600], 10],
-    ['Sofia Pro', '"Sofia Pro", Helvetica, Arial, sans-serif', [100, 200, 300, 400, 500, 600, 700, 900], 16]
-  ]],
   ['sans serif', [
     ['Helvetica', 'Helvetica, Arial, sans-serif'],
     ['Helvetica Neue', '"Helvetica Neue", Helvetica, Arial, sans-serif'],
@@ -2499,57 +2493,6 @@ function everypg() {
   nt('first one is the default. es, en')
 }
 
-var SU = null
-
-function csvq(v) {
-  v = String(v == null ? '' : v)
-  if (/^[=+\-@\t\r]/.test(v)) v = "'" + v
-  return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v
-}
-
-function listpanel() {
-  btn('← back to dev', function () { PT = 'dev'; panel() })
-  hd('mailing list')
-  if (!TM) return ns('signups are saved online. open the editor on the live site to see them')
-  if (!SU) {
-    ns('loading...')
-    fetch('api/signups').then(function (r) { return r.ok ? r.json() : [] }).then(function (j) {
-      SU = j
-      if (!sel && PT == 'list') panel()
-    })
-    return
-  }
-  var c = {}
-  SU.forEach(function (x) { c[x.st] = (c[x.st] || 0) + 1 })
-  ns(SU.length + (SU.length == 1 ? ' person' : ' people') + ' signed up' + (c.unsub ? ', ' + c.unsub + ' left the list' : ''))
-  if (c.pending) {
-    ns(c.pending + ' not confirmed yet')
-    nt('once sending is set up they get a confirm email first')
-  }
-  btn('download as a spreadsheet (csv)', function () {
-    var rows = [['email', 'name', 'language', 'from', 'status', 'signed up', 'confirmed', 'left', 'what they agreed to']].concat(SU.map(function (x) {
-      var d = function (t) { return t ? new Date(t).toISOString().slice(0, 16).replace('T', ' ') : '' }
-      return [x.em, x.nm, x.lg, x.src, x.st, d(x.at), d(x.cf), d(x.un), x.ct]
-    }))
-    var a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([rows.map(function (r) { return r.map(csvq).join(',') }).join('\r\n')], { type: 'text/csv' }))
-    a.download = 'n-press-list-' + new Date().toISOString().slice(0, 10) + '.csv'
-    a.click()
-  })
-  btn('refresh', function () { SU = null; CF = null; panel() })
-  cfgsec()
-  hd('newest')
-  if (!SU.length) ns('nobody yet')
-  SU.slice(0, 40).forEach(function (x) {
-    var r = document.createElement('div')
-    r.className = 'hs'
-    r.innerHTML = '<span></span><small></small>'
-    r.firstChild.textContent = x.em + (x.nm ? ' · ' + x.nm : '')
-    r.children[1].textContent = x.src + ', ' + new Date(x.at).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (x.st != 'pending' ? ', ' + (x.st == 'unsub' ? 'left' : x.st) : '')
-    pn.appendChild(r)
-  })
-}
-
 function devpanel() {
   hd('dev')
   var l = document.createElement('label'), b = document.createElement('button'), im = document.createElement('img'), k = s.icon || 'assets/favicon.svg'
@@ -2582,7 +2525,7 @@ function devpanel() {
   pn.appendChild(l)
   nt('the little icon in the browser tab. click it to pick a new one, square works best')
   fld('site lives at', s, 'root')
-  nt('/ on cloudflare. /n_press/ only for the old github pages address')
+  nt('/ when the site is at the top of its address. /name/ for a github pages project site')
   fld('phones below px', s.grid, 'bp', 'n', 300)
   nt('narrower screens than this get the phone layout')
   hd('demo pages')
@@ -2590,41 +2533,6 @@ function devpanel() {
   btn('+ tables demo', function () { demo('tables') })
   btn('+ shapes demo', function () { demo('shapes') })
   btn('+ type specimen', function () { demo('type') })
-  hd('mailing list')
-  btn('open the mailing list', function () { PT = 'list'; panel() })
-  nt('see who signed up, download the list, and turn off the signup limit for events')
-  if (TM) tvers()
-}
-
-var CF = null
-
-function cfgsec() {
-  hd('signup limit')
-  if (!CF) {
-    ns('loading...')
-    fetch('api/settings').then(function (r) { return r.ok ? r.json() : {} }).then(function (j) {
-      CF = j
-      if (!sel && PT == 'list') panel()
-    })
-    return
-  }
-  var l = document.createElement('label'), i = document.createElement('input'), o = CF.rloff, on = o && o.v == '1'
-  l.className = 'ck'
-  i.type = 'checkbox'
-  i.checked = on
-  i.disabled = RO
-  i.onchange = function () {
-    i.disabled = true
-    fetch('api/settings', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ k: 'rloff', v: i.checked }) }).then(function (r) {
-      st.textContent = r.ok ? (i.checked ? 'signup limit off' : 'signup limit back on') : 'could not change the signup limit'
-      CF = null
-      panel()
-    })
-  }
-  l.appendChild(i)
-  l.appendChild(document.createTextNode('no signup limit (event mode)'))
-  pn.appendChild(l)
-  ;(on ? ns : nt)(on ? 'off since ' + when(o.at) + ' by ' + o.by + '. turn it back on after the event' : 'normally one connection can sign up 30 emails an hour, which stops bots. check this when a crowd is signing up on one tablet or wifi. it works right away, no publish needed')
 }
 
 function scard(n, on, f, bare) {
@@ -2783,7 +2691,7 @@ function pnl() {
     ;[['page', 'page'], ['site', 'global'], ['type', 'type'], ['dev', 'dev']].forEach(function (x) {
       var a = document.createElement('a')
       a.textContent = x[1]
-      if (PT == x[0] || PT == 'list' && x[0] == 'dev') a.className = 'on'
+      if (PT == x[0]) a.className = 'on'
       a.onclick = function () {
         PT = x[0]
         try { localStorage.setItem('pt', PT) } catch (e) {}
@@ -2796,8 +2704,6 @@ function pnl() {
     if (PT == 'site') return everypg()
     if (PT == 'type') return sitepanel()
     if (PT == 'dev') return devpanel()
-    if (PT == 'list') return listpanel()
-    if (TM) tpanel()
     layers()
     pal('page colors', all(), pg())
     pgpanel()
@@ -3140,12 +3046,11 @@ function dirty() {
     RE = []
   }
   LAST = j
-  if (TM) return qs()
   dirt = true
   st.textContent = 'unsaved'
   clearTimeout(dt)
   dt = setTimeout(function () {
-    localStorage.setItem('draft', JSON.stringify({ t: Date.now(), s: s }))
+    try { localStorage.setItem(draftKey(), JSON.stringify({ t: Date.now(), s: s })) } catch (e) {}
   }, 700)
 }
 
@@ -3161,68 +3066,19 @@ function hist(a, b) {
   draw()
   panel()
   if (LB) lrd(1)
-  if (TM) return qs()
   dirt = true
   st.textContent = 'unsaved'
 }
 
 function chk() {
-  var d = JSON.parse(localStorage.getItem('draft') || 'null')
+  var d = null
+  try { d = JSON.parse(localStorage.getItem(draftKey()) || 'null') } catch (e) {}
   if (!d) return
   if (JSON.stringify(d.s) != JSON.stringify(s) && confirm('restore unsaved changes from ' + new Date(d.t).toLocaleString() + '?')) {
     s = d.s
     setup()
     dirty()
-  } else localStorage.removeItem('draft')
-}
-
-function db() {
-  return new Promise(function (ok) {
-    var q = indexedDB.open('mastermind', 1)
-    q.onupgradeneeded = function () { q.result.createObjectStore('h') }
-    q.onsuccess = function () { ok(q.result) }
-  })
-}
-
-async function keep(h) {
-  var d = await db()
-  d.transaction('h', 'readwrite').objectStore('h').put(h, 'dir')
-}
-
-async function back() {
-  var d = await db()
-  return new Promise(function (ok) {
-    var q = d.transaction('h').objectStore('h').get('dir')
-    q.onsuccess = function () { ok(q.result) }
-  })
-}
-
-async function opn(fresh) {
-  var h = fresh ? null : await back()
-  if (h && await h.requestPermission({ mode: 'readwrite' }) == 'granted') dir = h
-  else {
-    dir = await showDirectoryPicker({ id: 'npress', mode: 'readwrite' })
-    keep(dir)
-  }
-  try {
-    var f = await (await dir.getFileHandle('site.json')).getFile()
-    if (!dirt) { s = JSON.parse(await f.text()); sel = null; setup(); LAST = JSON.stringify(s); UN = []; RE = [] }
-  } catch (e) {}
-  st.textContent = 'folder: ' + dir.name + (dirt ? ' / unsaved' : '')
-}
-
-async function save() {
-  if (TM) return flush()
-  if (!dir) await opn()
-  st.textContent = 'saving...'
-  var n = await pub()
-  var w = await (await dir.getFileHandle('site.json', { create: true })).createWritable()
-  await w.write(JSON.stringify(s, null, 2) + '\n')
-  await w.close()
-  dirt = false
-  LAST = JSON.stringify(s)
-  localStorage.removeItem('draft')
-  st.textContent = 'saved site + ' + n + ' pages to ' + dir.name + ' ' + new Date().toLocaleTimeString() + (PO.length ? ' · text cut off on: ' + PO.join(', ') : '')
+  } else try { localStorage.removeItem(draftKey()) } catch (e) {}
 }
 
 document.getElementById('un').onclick = function () { hist(UN, RE) }
@@ -3230,8 +3086,6 @@ document.getElementById('re').onclick = function () { hist(RE, UN) }
 document.getElementById('hk').onclick = function () { hlp.hidden = !hlp.hidden }
 hlp.onclick = function () { hlp.hidden = true }
 
-document.getElementById('o').onclick = function (e) { opn(e.shiftKey) }
-document.getElementById('sv').onclick = save
 function pgo(i) {
   pi = i
   sel = null
@@ -3354,12 +3208,6 @@ document.getElementById('mb').onclick = function () {
   this.textContent = MOB ? 'phone' : 'desktop'
   draw()
   panel()
-}
-
-document.getElementById('pv').onclick = function () {
-  if (TM) return
-  if (dirt) localStorage.setItem('draft', JSON.stringify({ t: Date.now(), s: s }))
-  window.open('./?mm=1&p=' + (pg().slug || ''), 'npreview')
 }
 
 document.getElementById('lg').onchange = function () {
@@ -3502,18 +3350,4 @@ window.onresize = function () { draw() }
 document.fonts.onloadingdone = function () {
   BL = {}
   if (s && !document.activeElement.isContentEditable) draw()
-}
-
-function local() {
-fetch('site.json?' + Date.now()).then(function (r) { return r.json() }).catch(function () {}).then(function (j) {
-  s = j || { grid: { cols: 12, row: 24, gap: 10, pad: 20, v: 2 }, styles: {'body copy': {'font': '"Degular", Helvetica, Arial, sans-serif', 'size': 18, 'wt': '400'}, 'caption': {'font': '"Degular", Helvetica, Arial, sans-serif', 'size': 12, 'wt': '400'}, 'H1': {'font': '"Degular", Helvetica, Arial, sans-serif', 'size': 64, 'wt': '700'}, 'H2': {'font': '"Degular", Helvetica, Arial, sans-serif', 'size': 32, 'wt': '700'}}, pages: [{ id: 'home', slug: '', title: 'ñ press', blocks: [] }] }
-  setup()
-  LAST = JSON.stringify(s)
-  chk()
-  if (!window.showDirectoryPicker) st.textContent = 'saving needs chrome or edge'
-  else back().then(function (h) {
-    if (h) st.textContent = 'click open folder to reconnect ' + h.name
-    else if (!j) st.textContent = 'click open folder and pick n_press'
-  })
-})
 }

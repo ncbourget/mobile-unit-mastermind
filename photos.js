@@ -4,17 +4,6 @@ var IM = /\.(jpe?g|png|gif|webp|svg|avif)$/i, VD = /\.(mp4|webm|mov|m4v)$/i
 var LF0 = 'photos', LXF = [], LALL = []
 try { LF0 = localStorage.getItem('lf') || 'photos' } catch (e) {}
 
-async function walk(d, p, out, ds) {
-  for await (var [n, h] of d.entries()) {
-    if (n.charAt(0) == '.') continue
-    if (h.kind == 'directory') {
-      ds.push(p + n)
-      await walk(h, p + n + '/', out, ds)
-    } else if (IM.test(n) || VD.test(n)) out.push(p + n)
-  }
-  return out
-}
-
 function lfolds() {
   var f = { photos: 1 }
   LALL.forEach(function (p) {
@@ -103,19 +92,12 @@ function lput(p) {
 
 async function lib(cb) {
   lcb = cb
-  if (!dir && !TM) await opn()
+  if (!STORE) return showConnect()
   lw.hidden = false
   lgr.textContent = 'loading...'
-  if (TM) {
-    LALL = (await (await fetch('api/photos')).json()).map(function (x) {
-      if (x.u) PV[x.p] = x.u
-      return x.p
-    }).sort()
-  } else {
-    var ds = []
-    LALL = (await walk(await dir.getDirectoryHandle('photos', { create: true }), 'photos/', [], ds)).sort()
-    ds.forEach(function (d) { if (LXF.indexOf(d) < 0) LXF.push(d) })
-  }
+  var ls = await STORE.list('photos')
+  LALL = ls.files.filter(function (p) { return IM.test(p) || VD.test(p) }).sort()
+  ls.folders.forEach(function (d) { if (LXF.indexOf(d) < 0) LXF.push(d) })
   Object.keys(PV).forEach(function (p) { if (p.indexOf('photos/') == 0 && LALL.indexOf(p) < 0) LALL.push(p) })
   lrend()
 }
@@ -130,16 +112,10 @@ function clean(n) {
   return [b, x]
 }
 
-async function free(d, b, x) {
+async function free(f, b, x) {
   var n = b + x, k = 2
-  while (true) {
-    try {
-      await d.getFileHandle(n)
-      n = b + '-' + k++ + x
-    } catch (e) {
-      return n
-    }
-  }
+  while (await STORE.exists(f + '/' + n)) n = b + '-' + k++ + x
+  return n
 }
 
 async function shrink(f) {
@@ -154,50 +130,22 @@ async function shrink(f) {
   return new Promise(function (ok) { c.toBlob(ok, ty, .85) })
 }
 
-async function tup(files, f) {
-  var out = []
-  for (var fl of files) {
-    if (!IM.test(fl.name) && !VD.test(fl.name)) continue
-    st.textContent = 'uploading ' + fl.name
-    var nm = clean(fl.name), bl = await shrink(fl)
-    if (bl.type == 'image/jpeg' && nm[1] != '.jpg' && nm[1] != '.jpeg') nm[1] = '.jpg'
-    var b64 = await new Promise(function (ok) {
-      var fr = new FileReader()
-      fr.onload = function () { ok(fr.result.slice(fr.result.indexOf(',') + 1)) }
-      fr.readAsDataURL(bl)
-    })
-    var r = await fetch('api/upload', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n: nm[0] + nm[1], b64: b64, f: (f || 'photos/up').slice(7) }) })
-    if (!r.ok) { st.textContent = 'upload failed for ' + fl.name; continue }
-    var j = await r.json()
-    PV[j.path] = j.url
-    s.pend = s.pend || []
-    s.pend.push(j.path)
-    out.push(j.path)
-  }
-  st.textContent = out.length + ' uploaded, they go live when you publish'
-  return out
-}
-
 async function up(files, f) {
   f = f || 'photos/up'
-  if (TM) return tup(files, f)
-  if (!dir) await opn()
-  var d = dir
-  for (var sg of f.split('/')) d = await d.getDirectoryHandle(sg, { create: true })
+  if (!STORE) { showConnect(); return [] }
   var out = []
   for (var fl of files) {
     if (!IM.test(fl.name) && !VD.test(fl.name)) continue
     st.textContent = 'uploading ' + fl.name
     var nm = clean(fl.name), bl = await shrink(fl)
     if (bl.type == 'image/jpeg' && nm[1] != '.jpg' && nm[1] != '.jpeg') nm[1] = '.jpg'
-    var n = await free(d, nm[0], nm[1])
-    var w = await (await d.getFileHandle(n, { create: true })).createWritable()
-    await w.write(bl)
-    await w.close()
+    var n = await free(f, nm[0], nm[1])
+    await STORE.write(f + '/' + n, bl)
     PV[f + '/' + n] = URL.createObjectURL(bl)
     out.push(f + '/' + n)
   }
-  st.textContent = out.length + ' uploaded to ' + f
+  st.textContent = out.length + ' added to ' + f + (STORE.kind == 'github' ? ', they get pushed when you save' : '')
+  if (STORE.kind == 'github' && out.length) dirty()
   return out
 }
 
@@ -225,10 +173,7 @@ lw.querySelector('.lnf').onclick = async function () {
   if (!n || !(n = lfold(n))) return
   var f = LF0 + '/' + n
   if (LXF.indexOf(f) < 0) LXF.push(f)
-  if (!TM && dir) {
-    var d = dir
-    for (var sg of f.split('/')) d = await d.getDirectoryHandle(sg, { create: true })
-  }
+  if (STORE) await STORE.makeFolder(f)
   lgo(f)
 }
 document.getElementById('phb').onclick = function () { lib(null) }

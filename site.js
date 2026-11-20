@@ -4,11 +4,12 @@ var s, box = document.getElementById('pg')
 
 RT = document.body.dataset.rt || ''
 
-var MM = location.search.indexOf('mm=') > -1, DR = document.body.dataset.dr, VS = new URLSearchParams(location.search).get('v')
+var MM = location.search.indexOf('mm=') > -1
 
 function dft() {
-  var d = JSON.parse(localStorage.getItem('draft') || 'null')
-  document.getElementById('pvw').textContent = d ? 'preview of unsaved changes' : 'nothing unsaved, this is the saved site'
+  var d = null
+  try { d = JSON.parse(localStorage.getItem('mastermind-preview') || 'null') } catch (e) {}
+  document.getElementById('pvw').textContent = d && d.unsaved ? 'preview of unsaved changes' : 'preview'
   if (d) return Promise.resolve(d.s)
   return fetch(RT + 'site.json?' + Date.now()).then(function (r) { return r.json() })
 }
@@ -20,22 +21,17 @@ function load() {
     document.body.appendChild(tg)
     return dft()
   }
-  if (!DR) return fetch(RT + 'site.json').then(function (r) { return r.json() })
-  LP = '/preview/'
-  fb()
-  LQ = VS ? '?v=' + VS : ''
-  return fetch(VS ? '/api/version?sha=' + VS : '/api/draft').then(function (r) { return r.json() }).then(function (d) {
-    var tg = document.createElement('div')
-    tg.id = 'pvw'
-    tg.textContent = VS ? 'old version ' + VS.slice(0, 7) + ', not live' : d.s ? 'preview of the draft by ' + d.by + ', not live yet' : 'no draft, this is the live site'
-    document.body.appendChild(tg)
-    if (d.s) return d.s
-    return fetch('/site.json?' + Date.now()).then(function (r) { return r.json() })
-  }).then(function (j) {
-    ;(j.pend || []).forEach(function (p) { PM[p] = '/api/img/' + p.slice(7) })
-    return j
-  })
+  return fetch(RT + 'site.json').then(function (r) { return r.json() })
 }
+
+if (MM) document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href]')
+  if (!a || a.target == '_blank') return
+  var u = new URL(a.href, location.href), base = new URL(RT || './', location.href)
+  if (u.origin != base.origin || u.pathname.indexOf(base.pathname) != 0 || u.hash && u.pathname == location.pathname) return
+  e.preventDefault()
+  location.href = location.pathname + '?mm=1&p=' + encodeURIComponent(u.pathname.slice(base.pathname.length).replace(/\/?(index\.html)?$/, ''))
+})
 
 load().then(function (j) {
   s = j
@@ -97,7 +93,7 @@ function go() {
   stk()
   pbg(document.body, s, p)
   document.documentElement.lang = L
-  document.title = tx(p.title) || 'ñ press'
+  document.title = tx(p.title) || ''
   box.querySelectorAll('.cd').forEach(function (c) {
     if (hr.indexOf(c.dataset.k) > -1) heart(c, 1)
   })

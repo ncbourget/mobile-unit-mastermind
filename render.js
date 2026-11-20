@@ -587,7 +587,7 @@ function ecal(e) {
   var d = e.ad ? dk(e.s).replace(/-/g, '') + '/' + dk(e.e).replace(/-/g, '') : zt(e.s) + '/' + zt(e.e)
   var g = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(e.t) + '&dates=' + d + '&details=' + encodeURIComponent(e.d || '') + '&location=' + encodeURIComponent(e.loc || '')
   function q(v) { return String(v || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1') }
-  var ic = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//n press//events//EN', 'BEGIN:VEVENT', 'UID:' + e.id + '@npress', 'DTSTAMP:' + zt(Date.now()),
+  var ic = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//mobile unit mastermind//events//EN', 'BEGIN:VEVENT', 'UID:' + e.id + '@mastermind', 'DTSTAMP:' + zt(Date.now()),
     e.ad ? 'DTSTART;VALUE=DATE:' + d.split('/')[0] : 'DTSTART:' + zt(e.s), e.ad ? 'DTEND;VALUE=DATE:' + d.split('/')[1] : 'DTEND:' + zt(e.e),
     'SUMMARY:' + q(e.t), 'DESCRIPTION:' + q(e.d), 'LOCATION:' + q(e.loc), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n')
   var w = ew(), fn = (e.t || 'event').toLowerCase().replace(/[^a-z0-9ñ]+/g, '-').replace(/^-|-$/g, '') || 'event'
@@ -1099,14 +1099,4 @@ function bk(b, mm) {
 
 function nf() {
   return { id: 'nf', type: 'text', x: 0, y: 7, w: s.grid.cols, h: 6, al: 'center', size: 28, html: { es: 'no encontramos esta página. <a href="@">volver al inicio</a>', en: 'this page is not here. <a href="@">back home</a>' } }
-}
-
-function fb() {
-  document.addEventListener('error', function (e) {
-    var m = e.target, k = m.getAttribute && m.getAttribute('src') || '', i = k.indexOf('photos/')
-    if ((m.tagName == 'IMG' || m.tagName == 'VIDEO') && i > -1 && !m.dataset.fb) {
-      m.dataset.fb = 1
-      m.src = '/api/img/' + k.slice(i + 7)
-    }
-  }, true)
 }
