@@ -300,6 +300,17 @@ body.mm {
   outline: 2px solid #e8a03a;
 }
 
+#pn .phu {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #111;
+  background: #f2f2ef;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 #pn .ck {
   justify-content: flex-start;
   gap: 6px;
@@ -3667,7 +3678,68 @@ body:not(.sb) #cvp {
   letter-spacing: -.02em;
 }
 
-.cn h1 span {
+body.on-phone > *:not(#phone) {
+  display: none !important;
+}
+
+body.on-phone {
+  overflow: auto;
+}
+
+#phone {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 48px 16px;
+  color: #111;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+#phone[hidden] {
+  display: none;
+}
+
+#phone h1 {
+  margin: 0 0 18px;
+  font-size: 30px;
+  letter-spacing: -.02em;
+}
+
+#phone p {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #444;
+}
+
+#phone .ph-url {
+  padding: 12px 14px;
+  font-size: 15px;
+  color: #111;
+  background: #fff;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+#phone button {
+  margin: 0 0 28px;
+  padding: 11px 18px;
+  font: 15px Helvetica, Arial, sans-serif;
+  color: #fff;
+  background: #111;
+  border: 0;
+  border-radius: 6px;
+}
+
+#phone .ph-note {
+  font-size: 14px;
+  color: #666;
+}
+
+#phone a {
+  color: inherit;
+}
+
+.cn h1 span, #phone h1 span {
   background: repeating-linear-gradient(90deg, #000 0%, #298326 12.5%, #f0cf30 25%, #ff6102 37.5%, #bf0a0d 50%, #5b3579 62.5%, #1552a1 75%, #45a9df 87.5%, #000 100%) 0 0 / 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;

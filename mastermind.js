@@ -2611,6 +2611,45 @@ function everypg() {
   nt('first one is the default. es, en')
 }
 
+var PHN = null, PHP = false
+
+function phbox(t) {
+  var d = document.createElement('div')
+  d.className = 'phu'
+  d.textContent = t
+  pn.appendChild(d)
+}
+
+function phonesec() {
+  hd('phone preview')
+  if (STORE && STORE.kind == 'local') {
+    if (!PHN) {
+      ns('finding this computer on the network...')
+      STORE.phones().then(function (j) { PHN = j }, function (e) { PHN = { phones: [], watching: 0, err: e.message } }).then(function () { if (!sel && PT == 'dev') panel() })
+      return
+    }
+    if (PHN.err) return nt(PHN.err)
+    if (PHN.phones.length) {
+      nt('on a phone on the same Wi-Fi, open:')
+      PHN.phones.forEach(phbox)
+    } else nt('this computer isn\'t on a network right now. join a Wi-Fi network, then press refresh')
+    ns(PHN.watching ? PHN.watching + (PHN.watching == 1 ? ' phone watching' : ' phones watching') : 'no phones watching yet')
+    nt('the phone follows the page you\'re on and updates as you edit, before you save')
+    btn('refresh', function () { PHN = null; panel() })
+    return
+  }
+  nt('see your site on a real phone while you design it. it updates as you edit')
+  if (!PHP) return btn('connect a phone', function () { PHP = true; panel() })
+  ns('phone preview needs Mastermind running on this computer, which needs Node')
+  nt('1. install Node if you don\'t have it yet. it\'s free, and you only do this once')
+  btn('download Node', function () { window.open('https://nodejs.org/en/download', '_blank', 'noopener') })
+  nt('2. open a terminal in your site\'s folder and run this if Mastermind is installed inside your site:')
+  phbox('node mastermind/serve.js')
+  nt('or, if you downloaded Mastermind somewhere else, run serve.js from there while you\'re in your site\'s folder')
+  nt('3. Mastermind opens in your browser, already connected. come back to this tab for the phone address')
+  btn('how it works', function () { window.open('about.html#phone', '_blank') })
+}
+
 function devpanel() {
   hd('dev')
   var l = document.createElement('label'), b = document.createElement('button'), im = document.createElement('img'), k = s.icon || 'assets/favicon.svg'
@@ -2646,6 +2685,7 @@ function devpanel() {
   nt('/ when the site is at the top of its address. /name/ for a GitHub Pages project site')
   fld('phones below px', s.grid, 'bp', 'n', 300)
   nt('narrower screens than this get the phone layout')
+  phonesec()
   hd('site code')
   btn('open the code editor', code)
   nt('edit your site\'s own css, js and html files, or make new ones')
@@ -3188,6 +3228,7 @@ function dirty() {
   LAST = j
   dirt = true
   st.textContent = 'unsaved'
+  if (window.livePush) livePush()
   clearTimeout(dt)
   dt = setTimeout(function () {
     try { localStorage.setItem(draftKey(), JSON.stringify({ t: Date.now(), s: s })) } catch (e) {}
@@ -3231,6 +3272,7 @@ function pgo(i) {
   sel = null
   SS = []
   CUR = pg().slug || ''
+  if (window.livePush) livePush()
   document.getElementById('pgm').hidden = true
   tbr()
   draw()
@@ -3352,6 +3394,7 @@ document.getElementById('mb').onclick = function () {
 
 document.getElementById('lg').onchange = function () {
   L = this.value
+  if (window.livePush) livePush()
   tbr()
   draw()
   panel()

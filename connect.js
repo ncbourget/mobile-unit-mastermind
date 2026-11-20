@@ -125,7 +125,8 @@ async function connected(store) {
   chk()
   draw()
   panel()
-  st.textContent = (store.kind == 'github' ? 'GitHub: ' + store.repo + ' · ' + store.branch : store.kind == 'browser' ? 'in this browser: ' + store.name : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet') + (old ? ' · site.json becomes mastermind.json when you save' : '')
+  livePush()
+  st.textContent = (store.kind == 'github' ? 'GitHub: ' + store.repo + ' · ' + store.branch : store.kind == 'browser' ? 'in this browser: ' + store.name : store.kind == 'local' ? 'on this computer: ' + store.name : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet') + (old ? ' · site.json becomes mastermind.json when you save' : '')
   dlStatus()
 }
 
@@ -398,7 +399,22 @@ document.getElementById('pv').onclick = function () {
   window.open('preview.html?mm=1&p=' + encodeURIComponent(pg().slug || ''), 'mastermind-preview')
 }
 
+function onPhone() {
+  return matchMedia('(pointer: coarse) and (hover: none)').matches && Math.min(screen.width, screen.height) < 600
+}
+
 ;(async function boot() {
+  if (onPhone()) {
+    var ph = document.getElementById('phone'), u = location.href.split('?')[0].split('#')[0]
+    document.body.classList.add('on-phone')
+    ph.hidden = false
+    ph.querySelector('.ph-url').textContent = u
+    ph.querySelector('.ph-copy').onclick = function () {
+      var b = this
+      ;(navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { b.textContent = 'copied' }, function () { b.textContent = 'copy it from the box above' })
+    }
+    return
+  }
   s = newSite('untitled')
   setup()
   LAST = JSON.stringify(s)
@@ -409,6 +425,16 @@ document.getElementById('pv').onclick = function () {
     cnError(e.message)
     return
   }
+  var lo = await LocalServerStorage.find()
+  if (lo) return tryConnect(function () { return lo })
   var g = GitHubStorage.saved()
   if (g && g.token) tryConnect(function () { return GitHubStorage.open(g.repo, g.branch, g.token) })
 })()
+
+var LT = null
+
+function livePush() {
+  if (!STORE || STORE.kind != 'local') return
+  clearTimeout(LT)
+  LT = setTimeout(function () { STORE.live({ s: s, page: pg().slug || '', lang: L }) }, 200)
+}
