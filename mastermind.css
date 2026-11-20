@@ -300,6 +300,17 @@ body.mm {
   outline: 2px solid #e8a03a;
 }
 
+#pn .phq {
+  width: 168px;
+  margin: 6px 0 4px;
+}
+
+#pn .phq svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 #pn .phu {
   margin: 4px 0 8px;
   padding: 8px 10px;

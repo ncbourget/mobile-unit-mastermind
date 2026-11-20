@@ -57,7 +57,7 @@ function setup() {
   })
   s.grid.mc = s.grid.mc || 4
   s.grid.bp = s.grid.bp || 700
-  LS = s.langs = s.langs || ['es']
+  LS = s.langs = s.langs || ['en']
   if (LS.indexOf(L) < 0) L = LS[0]
   if (pi >= s.pages.length) pi = 0
   CUR = s.pages[pi].slug || ''
@@ -1736,8 +1736,8 @@ var df = {
   image: { w: 4, h: 10, src: '' },
   marquee: { w: 12, h: 3, html: 'your words here', speed: 20 },
   nav: { w: 3, h: 10, items: [{ t: 'link', href: '#' }, { t: 'link', href: '#' }, { t: 'link', href: '#' }] },
-  tabs: { w: 9, h: 3, items: [{ t: 'prints', href: '#prints' }, { t: 'zines', href: '#zines' }], flt: 'Filter by' },
-  cards: { w: 9, h: 30, cols: 3, per: 9, items: [{ t: 'item', price: '$20', tag: 'prints' }, { t: 'item', price: '$10', tag: 'zines' }, { t: 'item', price: '$15', was: '$20', badge: 'SALE!', tag: 'prints' }] },
+  tabs: { w: 9, h: 3, items: [{ t: 'one', href: '#one' }, { t: 'two', href: '#two' }], flt: 'Filter by' },
+  cards: { w: 9, h: 30, cols: 3, per: 9, items: [{ t: 'item', price: '$20', tag: 'one' }, { t: 'item', price: '$10', tag: 'two' }, { t: 'item', price: '$15', was: '$20', badge: 'SALE!', tag: 'prints' }] },
   banner: { w: 9, h: 10, src: '', html: 'banner', bg: '#f4c6d8' },
   button: { w: 3, h: 3, t: 'button', bg: '#e8382c', fg: '#ffffff' },
   lang: { w: 2, h: 1 },
@@ -2601,7 +2601,7 @@ function everypg() {
   i2.value = LS.join(', ')
   i2.onchange = function () {
     var v = i2.value.toLowerCase().split(/[\s,]+/).filter(Boolean)
-    if (!v.length) v = ['es']
+    if (!v.length) v = ['en']
     s.langs = v
     dirty()
     setup()
@@ -2630,8 +2630,16 @@ function phonesec() {
     }
     if (PHN.err) return nt(PHN.err)
     if (PHN.phones.length) {
-      nt('on a phone on the same Wi-Fi, open:')
-      PHN.phones.forEach(phbox)
+      nt('on a phone on the same Wi-Fi, scan this with the camera, or open the address:')
+      PHN.phones.forEach(function (a, i) {
+        if (i == 0) {
+          var q = document.createElement('div')
+          q.className = 'phq'
+          q.innerHTML = qrsvg(a)
+          pn.appendChild(q)
+        }
+        phbox(a)
+      })
     } else nt('this computer isn\'t on a network right now. join a Wi-Fi network, then press refresh')
     ns(PHN.watching ? PHN.watching + (PHN.watching == 1 ? ' phone watching' : ' phones watching') : 'no phones watching yet')
     nt('the phone follows the page you\'re on and updates as you edit, before you save')
@@ -3149,7 +3157,20 @@ function pnl() {
     fld('button text', sel, 'bfg', 'c')
   }
   if (t == 'events') {
-    ;(EV && EV.demo ? ns : nt)(EV && EV.demo ? 'showing sample events until the google calendar is connected' : 'events come from the ñ press google calendar. add or change them there, the site updates in a few minutes')
+    fld('events come from', sel, 'cal', 's', [['', 'written here'], ['g', 'Google Calendar']])
+    if (sel.cal == 'g') {
+      fld('calendar ID', sel, 'gcal')
+      fld('API key', sel, 'gkey')
+      var ec = EVC[evkey(sel)]
+      if (!String(sel.gcal || '').trim() || !String(sel.gkey || '').trim()) nt('the calendar has to be public. you need its calendar ID and a Google API key')
+      else if (ec && ec.err) ns('! ' + ec.err)
+      else if (ec && ec.ev) ns(ec.ev.length + (ec.ev.length == 1 ? ' event' : ' events') + ' found. the live site checks Google every time someone opens the page')
+      btn('how to connect Google Calendar', function () { window.open('about.html#calendar', '_blank') })
+      btn('refresh events', function () { delete EVC[evkey(sel)]; draw(); panel() })
+    } else {
+      lst('events', sel, 'evs', [['t', 'title', 't'], ['day', 'date, like 2026-12-05'], ['from', 'starts, like 18:00'], ['to', 'ends, like 21:00'], ['loc', 'place'], ['d', 'about', 't'], ['img', 'picture'], ['href', 'link']])
+      nt('leave starts empty for an all-day event. times show exactly as you write them')
+    }
     fld('view', sel, 'vw', 's', [['', 'list'], ['month', 'month']])
     if (sel.vw == 'month') fld('week starts', sel, 'ws', 's', [['', 'sunday'], ['mo', 'monday']])
     else {
@@ -3163,7 +3184,6 @@ function pnl() {
     fld('add to calendar button', sel, 'add', 'b')
     fld('date color', sel, 'ac', 'c')
     fld('when empty', sel, 'emp', 't')
-    btn('refresh events', function () { EV = null; EVD = 0; evl() })
   }
   if (t == 'embed') {
     fld('code', sel, 'code', 'a')
@@ -3188,7 +3208,7 @@ function pnl() {
   }
   if (t == 'tabs') {
     fld('filter label', sel, 'flt', 't')
-    nt('a link like #prints filters cards tagged prints')
+    nt('a link like #shoes filters cards tagged shoes')
     lst('tabs', sel, 'items', [['t', 'label', 't'], ['href', 'link']])
   }
   if (t == 'cards') {
@@ -3249,6 +3269,7 @@ function hist(a, b) {
   if (LB) lrd(1)
   dirt = true
   st.textContent = 'unsaved'
+  if (window.livePush) livePush()
 }
 
 function chk() {
