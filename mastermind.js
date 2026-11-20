@@ -2839,6 +2839,15 @@ function pnl() {
   fld('lock, can not be clicked on the canvas', sel, 'lk', 'b')
   if (sel.lk) nt('unlock it here or with the lock in active elements')
   fld('show on', sel, 'on', 's', [['', 'phone and desktop'], ['d', 'desktop only'], ['p', 'phone only']])
+  if (LS.length > 1 && t != 'lang') {
+    fld('click switches language to', sel, 'sl', 's', [['', 'nothing']].concat(LS.map(function (l) { return [l, l.toUpperCase()] })))
+    if (sel.sl) {
+      fld('when it is showing: fill', sel, 'saf', 'c')
+      fld('when it is showing: text', sel, 'sat', 'c')
+      fld('when it is not showing', sel, 'sio', 's', [['', 'looks the same'], ['.6', 'faded a little'], ['.35', 'faded a lot']])
+      nt('make one of these for each language, or group them to build your own switch')
+    }
+  }
   if (!sel.fix && !(t == 'band' && sel.wp)) {
     fld('sticks to the top when scrolling', sel, 'stk', 'b')
     if (sel.stk) nt('it scrolls with the page until it reaches the top, then stays there. see it in preview')
@@ -3120,6 +3129,8 @@ function pnl() {
   if (t == 'lang') {
     sel.names = sel.names || {}
     LS.forEach(function (l) { fld('label ' + l, sel.names, l) })
+    fld('align', sel, 'la', 's', [['', 'right'], ['c', 'center'], ['l', 'left']])
+    nt('the switch fits its box and never gets cut off. make the box bigger or smaller to change its size')
   }
   if (t == 'nav') {
     fld('layout', sel, 'nd', 's', [['', 'stacked boxes'], ['row', 'boxes in a row'], ['plain', 'plain links in a row']])

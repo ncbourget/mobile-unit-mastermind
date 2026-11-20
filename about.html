@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>read this first / Mobile Unit Mastermind</title>
+<title>read this first / Mobile Unit: Mastermind</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <style>
 body {
@@ -13,10 +13,24 @@ body {
   font: 16px/1.5 Helvetica, Arial, sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .wrap {
-  max-width: 680px;
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 680px);
+  justify-content: center;
+  gap: 48px;
   padding: 48px 16px 80px;
+}
+
+main {
+  min-width: 0;
+}
+
+section {
+  scroll-margin-top: 20px;
 }
 
 .top {
@@ -101,27 +115,60 @@ pre {
   vertical-align: 3px;
 }
 
-.toc {
-  margin: 0 0 28px;
+.toc ul {
+  position: sticky;
+  top: 48px;
+  margin: 118px 0 0;
   padding: 0;
   list-style: none;
   font-size: 14px;
 }
 
 .toc li {
-  display: inline;
-  margin-right: 12px;
+  margin-bottom: 2px;
+}
+
+.toc a {
+  display: block;
+  padding: 4px 10px;
+  color: #555;
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.toc a:hover {
+  color: #111;
+}
+
+.toc a.on {
+  color: #111;
+  background: #fff45c;
+}
+
+@media (max-width: 900px) {
+  .wrap {
+    display: block;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .toc ul {
+    position: static;
+    margin: 0 0 24px;
+  }
+
+  .toc li {
+    display: inline-block;
+    margin: 0 4px 4px 0;
+  }
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-<p class="top"><a href="./">← back to mastermind</a></p>
-
-<h1>read this first</h1>
-<p class="lede">mastermind is early. it works, it saves real files, and it is not perfect yet. here is what it can and can't do, and where your files go.</p>
-
-<ul class="toc">
+<nav class="toc">
+<ul>
+<li><a href="#new">starting a new site</a></li>
 <li><a href="#browsers">browsers</a></li>
 <li><a href="#files">where files go</a></li>
 <li><a href="#saving">saving and overwriting</a></li>
@@ -132,12 +179,32 @@ pre {
 <li><a href="#private">private on cloudflare</a></li>
 <li><a href="#limits">other limits</a></li>
 </ul>
+</nav>
+<main>
+<p class="top"><a href="./">← back to mastermind</a></p>
+
+<h1>read this first</h1>
+<p class="lede">mastermind is early. it works, it saves real files, and it is not perfect yet. here is what it can and can't do, and where your files go.</p>
+
+<section id="new">
+<h2>starting a new site</h2>
+<p>you don't need a folder or a repo to start. on the first screen, give the site a name and pick one:</p>
+<ul>
+<li><b>start in this browser</b> works in any browser. the site is kept in this browser's storage until you press <b>download</b>, which gives you a zip with one folder inside: your pages, <code>mastermind.json</code>, photos, fonts and the files that draw the pages. unzip it and that folder is your site. put it on any host, push it to github, or open it again later with <b>open a folder</b>.</li>
+<li><b>make it in a new folder</b> needs chrome or edge. the folder picker has a new folder button. make one, pick it, and mastermind saves straight into it from then on.</li>
+<li>a site kept in this browser stays through quitting and restarting. it's gone if you clear this browser's cookies and site data, or if you only used a private window. safari also clears it if you don't open mastermind for 7 days.</li>
+<li>mastermind asks the browser to keep the site even when your disk fills up. chrome and edge usually agree on their own, firefox asks you. if the browser says no, the continue button tells you.</li>
+<li>the toolbar and the continue button show when you last downloaded, and turn yellow when you have changes that aren't in a download yet.</li>
+<li>this browser holds one site at a time. starting another one throws the first away, so download it first.</li>
+<li>double-clicking <code>index.html</code> in the downloaded folder shows the desktop version. the phone layout, language switching and galleries need the folder served from a host, or opened in mastermind.</li>
+</ul>
+</section>
 
 <section id="browsers">
 <h2>browsers</h2>
 <ul>
 <li><b>open a folder</b> only works in chrome and edge (and other browsers built on chrome, like brave, arc and opera). safari and firefox don't let websites open a folder on your computer.</li>
-<li><b>connect a github repo</b> works in any up to date browser.</li>
+<li><b>connect a github repo</b> and <b>start in this browser</b> work in any up to date browser.</li>
 <li>mastermind is built for a laptop or desktop screen. it opens on a tablet but it's cramped, and phones are not supported.</li>
 <li>if photos or fonts stop showing up after a hard reload (shift + reload), reload once more the normal way.</li>
 </ul>
@@ -145,7 +212,7 @@ pre {
 
 <section id="files">
 <h2>where your files go</h2>
-<p>nowhere but your own folder or your own repo. there is no mastermind account and nothing is uploaded to a mastermind server.</p>
+<p>nowhere but your own folder, your own repo, or this browser's own storage. there is no mastermind account and nothing is uploaded to a mastermind server.</p>
 <ul>
 <li><b>folder:</b> files are read and written straight to the folder you picked.</li>
 <li><b>github:</b> this browser talks to github directly with your token. make a fine-grained token that can only see the one repo, give it <code>contents: read and write</code>, and set it to expire.</li>
@@ -158,21 +225,27 @@ pre {
 <h2>saving and overwriting</h2>
 <p>saving writes these files into your site:</p>
 <ul>
-<li><code>site.json</code>, which holds every page you made in mastermind. this is how mastermind knows a site is its own and reopens it exactly.</li>
+<li><code>mastermind.json</code>, which holds every page you made in mastermind. this is how mastermind knows a site is its own and reopens it exactly, with nothing to interpret. sites saved by an older mastermind have a <code>site.json</code> instead. mastermind still opens those and renames the file to <code>mastermind.json</code> on the next save. a <code>site.json</code> that mastermind didn't make is left alone.</li>
 <li>one <code>index.html</code> per page, plus <code>404.html</code></li>
 <li><code>render.js</code>, <code>site.js</code> and <code>page.css</code>, which draw the pages. they are replaced with the newest version on every save, which is how your site picks up mastermind updates.</li>
 <li><code>fonts.css</code> and a favicon, only if your site doesn't have them yet</li>
 </ul>
 <h3>what gets overwritten</h3>
 <ul>
-<li>the pages mastermind makes are rebuilt from <code>site.json</code> every time you save. if you edit one of those html files by hand, the next save replaces your edit. make changes in mastermind, or keep hand-written pages separate.</li>
-<li>if saving would replace a file mastermind didn't make, like your own <code>index.html</code>, it lists the files and asks first. say no and nothing is written.</li>
+<li>the pages mastermind makes are rebuilt from <code>mastermind.json</code> every time you save. if you edit one of those html files by hand, the next save replaces your edit. make changes in mastermind, or keep hand-written pages separate.</li>
+<li>if saving would replace a file mastermind didn't make, like your own <code>index.html</code>, it lists the files and asks first. say no and nothing is written. say yes and it keeps a copy of each one first (see backups below).</li>
 <li>on github, if someone else pushed since you connected, mastermind stops instead of overwriting their work. reconnect to pick up their changes, then save again.</li>
 <li>on most hosts (github pages, cloudflare pages, netlify) a push to the main branch goes live a minute later. saving to github is publishing.</li>
 <li>keep your site in git, so any save can be rolled back.</li>
 </ul>
-<h3>backups <span class="soon">coming</span></h3>
-<p>before mastermind takes over a page, it will copy it to <code>page-backup.html</code> and list it in <code>mastermind-backup.json</code>, so the original is kept and mastermind leaves the backup alone.</p>
+<h3>backups</h3>
+<p>before mastermind saves over a file it didn't make, it keeps a copy next to it: <code>index.html</code> becomes <code>index-backup.html</code>, <code>about/index.html</code> becomes <code>about/index-backup.html</code>. if that name is taken, it uses <code>index-backup-2.html</code> and so on, so an older backup is never replaced.</p>
+<ul>
+<li>every backup is listed in <code>mastermind-backup.json</code>, with what it's a copy of and when. mastermind never edits or deletes a backup.</li>
+<li>a backup still works as a page. open <code>yoursite.com/index-backup.html</code> to see your old homepage, with its own css and scripts.</li>
+<li>to go back, delete the mastermind version and rename the backup to its old name.</li>
+<li>your other files, like <code>style.css</code> or <code>script.js</code>, are never touched. mastermind only writes the files listed above, plus the photos you add.</li>
+</ul>
 </section>
 
 <section id="freeform">
@@ -263,6 +336,24 @@ pre {
 </section>
 
 <p class="top"><a href="./">← back to mastermind</a></p>
+</main>
 </div>
+<script>
+var ls = [].slice.call(document.querySelectorAll('.toc a')), secs = ls.map(function (a) { return document.querySelector(a.getAttribute('href')) })
+
+function spot() {
+  var on = 0
+  secs.forEach(function (x, i) { if (x.getBoundingClientRect().top < innerHeight * .3) on = i })
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) on = secs.length - 1
+  ls.forEach(function (a, i) { a.classList.toggle('on', i == on) })
+}
+
+addEventListener('scroll', spot, { passive: true })
+addEventListener('resize', spot)
+ls.forEach(function (a, i) {
+  a.onclick = function () { setTimeout(function () { ls.forEach(function (b, j) { b.classList.toggle('on', j == i) }) }, 700) }
+})
+spot()
+</script>
 </body>
 </html>

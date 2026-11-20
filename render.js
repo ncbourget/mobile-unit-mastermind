@@ -252,9 +252,24 @@ function ps(b) {
   return AU[b.id] || b
 }
 
+function slw(el, b) {
+  if (!b.sl || LS.indexOf(b.sl) < 0) {
+    delete el.dataset.sl
+    el.classList.remove('slon')
+    return
+  }
+  el.dataset.sl = b.sl
+  el.classList.toggle('slon', b.sl == L)
+  el.classList.toggle('slt', !!b.sat)
+  el.style.setProperty('--saf', b.saf || 'transparent')
+  if (b.sat) el.style.setProperty('--sat', b.sat)
+  el.style.setProperty('--sio', b.sio || 1)
+}
+
 function lay(el, b, mm) {
   var p = ps(b), s = el.style
   el.classList.add('t-' + b.type)
+  slw(el, b)
   if (b.type == 'text' && !b.fm) el.classList.add('fr')
   s.zIndex = b.type == 'band' && b.wp ? -1 : b.z || (b.fix ? 30 : b.type == 'band' ? 0 : 1)
   s.display = hid(b) ? 'none' : ''
@@ -906,6 +921,7 @@ function grp(el, b, mm) {
     if (md == 'st' && /band|shape/.test(k.type) && (k.gw || 0) >= b.gw * .9 && (k.gh || 0) >= b.gh * .9) w.classList.add('gbg')
     else if (md == 'st') w.style.height = (k.gh || 24) + 'px'
     else gkl(w, k, b)
+    slw(w, k)
     w.appendChild(bk(k, mm))
     box.appendChild(w)
   })
@@ -1066,14 +1082,19 @@ function bk(b, mm) {
   } else if (t == 'button') {
     el.textContent = tx(b.t)
   } else if (t == 'lang') {
+    var lc = 0
     LS.forEach(function (l) {
-      var a = document.createElement('a')
+      var a = document.createElement('a'), n = (b.names && b.names[l]) || l.toUpperCase()
       a.href = '#'
       a.dataset.l = l
-      a.textContent = (b.names && b.names[l]) || l.toUpperCase()
+      a.textContent = n
       if (l == L) a.className = 'on'
       el.appendChild(a)
+      lc += 1.7
+      for (var ch of n) lc += ch == ch.toUpperCase() && ch != ch.toLowerCase() ? .64 : .5
     })
+    el.style.setProperty('--lc', lc.toFixed(2))
+    if (b.la) el.classList.add('la-' + b.la)
   } else if (t == 'shape') {
     shp(el, b)
   } else if (t == 'band') {

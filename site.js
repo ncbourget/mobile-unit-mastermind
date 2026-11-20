@@ -11,7 +11,7 @@ function dft() {
   try { d = JSON.parse(localStorage.getItem('mastermind-preview') || 'null') } catch (e) {}
   document.getElementById('pvw').textContent = d && d.unsaved ? 'preview of unsaved changes' : 'preview'
   if (d) return Promise.resolve(d.s)
-  return fetch(RT + 'site.json?' + Date.now()).then(function (r) { return r.json() })
+  return fetch(RT + 'mastermind.json?' + Date.now()).then(function (r) { return r.json() })
 }
 
 function load() {
@@ -21,7 +21,7 @@ function load() {
     document.body.appendChild(tg)
     return dft()
   }
-  return fetch(RT + 'site.json').then(function (r) { return r.json() })
+  return fetch(RT + 'mastermind.json').then(function (r) { return r.json() })
 }
 
 if (MM) document.addEventListener('click', function (e) {
@@ -184,9 +184,9 @@ document.addEventListener('click', function (e) {
   } else if ((x = t.closest('[data-z]'))) {
     e.preventDefault()
     zoom(x)
-  } else if ((x = t.closest('.c-lang a'))) {
+  } else if ((x = t.closest('.c-lang a')) || (x = t.closest('[data-sl]'))) {
     e.preventDefault()
-    L = x.dataset.l
+    L = x.dataset.l || x.dataset.sl
     localStorage.setItem('lng', L)
     go()
   } else if ((x = t.closest('.hrt'))) {

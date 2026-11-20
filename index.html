@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mobile Unit Mastermind</title>
+<title>Mobile Unit: Mastermind</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="page.css">
 <link rel="stylesheet" href="mastermind.css">
@@ -13,6 +13,7 @@
   <b>Mastermind</b>
   <button id="o" title="switch to another site">connect</button>
   <button id="sv">save</button>
+  <button id="dl" hidden title="download the whole site as a zipped folder">download</button>
   <button id="pv">preview</button>
   <i></i>
   <div id="pgw"><button id="pgs"></button><div id="pgm" hidden></div></div>
@@ -75,6 +76,7 @@
   <p>desktop changes flow to the phone. a change made in phone view stays on the phone</p>
   <p>on the grid snaps to columns and rows. anti-grid sits anywhere and scales with the screen</p>
   <p>set a whole page to freeform in the page tab: nothing snaps, and phones get their own stacked layout</p>
+  <p>any block or group can switch the language when clicked. pick the language under show on</p>
   <p>double click a photo to move and zoom it inside its box</p>
   <p>double click a marquee to stop it and type</p>
   <p>tables: click a cell, shift click a range, drag the blue lines to resize</p>
@@ -94,15 +96,23 @@
 <div id="connect" hidden>
   <div class="cn">
     <button class="cn-close" title="back to the editor" hidden>×</button>
-    <h1>Mobile Unit Mastermind</h1>
+    <h1>Mobile Unit <span>Mastermind</span></h1>
     <p class="cn-lede">design pages for a website you already have, or start a new one. you get plain html, css and js back.</p>
     <section>
-      <h2>a folder on this computer</h2>
+      <h2>start a new site</h2>
+      <p>no folder or repo needed yet.</p>
+      <label>name<input id="cn-name" placeholder="my site" spellcheck="false"></label>
+      <div class="cn-row"><button id="cn-new-browser">start in this browser</button><button id="cn-new-folder" class="cn-alt">make it in a new folder</button></div>
+      <p class="cn-new-note"></p>
+      <div class="cn-row cn-cont" hidden><button id="cn-continue" class="cn-alt"></button><p class="cn-dl"></p></div>
+    </section>
+    <section>
+      <h2>existing site? open a folder on this computer</h2>
       <p class="cn-folder-note"></p>
       <div class="cn-row"><button id="cn-folder">open a folder</button><button id="cn-again" hidden></button></div>
     </section>
     <section>
-      <h2>a github repo</h2>
+      <h2>existing site? connect a github repo</h2>
       <form id="cn-gh" autocomplete="off">
         <label>repo<input name="repo" placeholder="owner/your-site" spellcheck="false" required></label>
         <label>branch<input name="branch" placeholder="the default branch" spellcheck="false"></label>
@@ -113,7 +123,14 @@
       </form>
     </section>
     <p class="cn-err"></p>
-    <p class="cn-note">nothing goes to a mastermind server. your files go straight between this browser and your folder or github, and the token stays in this browser. <a href="about.html">read this first</a>: browsers, overwriting, codespaces, and using mastermind with a group.</p>
+    <section class="cn-read">
+      <div>
+        <h2>read this first</h2>
+        <p>which browsers work, where your files go, what gets overwritten and backed up, codespaces, and using mastermind with a group.</p>
+      </div>
+      <a class="cn-btn" href="about.html">read this first</a>
+    </section>
+    <p class="cn-note">nothing goes to a mastermind server. your files go straight between this browser and your folder or github, and the token stays in this browser.</p>
   </div>
 </div>
 <script src="render.js"></script>
@@ -126,6 +143,8 @@
 <script src="demos.js"></script>
 <script src="folder-storage.js"></script>
 <script src="github-storage.js"></script>
+<script src="browser-storage.js"></script>
+<script src="zip-download.js"></script>
 <script src="connect.js"></script>
 </body>
 </html>

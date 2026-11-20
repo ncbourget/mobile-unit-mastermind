@@ -1,4 +1,4 @@
-var STORE = null, SITE_HAD_JSON = false, OWN = {}
+var STORE = null, SITE_HAD_JSON = false, OLD_JSON = false, OWN = {}
 var RUNTIME = ['render.js', 'site.js', 'page.css']
 var cn = document.getElementById('connect')
 
@@ -38,7 +38,11 @@ async function startWorker() {
   var sw = navigator.serviceWorker
   sw.addEventListener('message', answerFile)
   sw.startMessages()
-  await sw.register('site-file-worker.js')
+  try {
+    await sw.register('site-file-worker.js')
+  } catch (e) {
+    throw new Error('this browser is blocking the part of mastermind that loads photos and fonts. you can still design and save, but photos won\'t show. chrome or edge work best')
+  }
   await sw.ready
   if (sw.controller) return
   var got = await Promise.race([
@@ -82,15 +86,23 @@ function siteFonts(txt) {
 async function connected(store) {
   if (dirt && STORE && !confirm('switch sites? changes you have not saved stay in this browser and come back when you reopen ' + STORE.name)) return
   st.textContent = 'opening ' + store.name + '...'
-  var txt = await store.readText('site.json'), j
+  var txt = await store.readText('mastermind.json'), j, old = false
+  if (txt == null) {
+    var t2 = await store.readText('site.json')
+    try {
+      var j2 = t2 && JSON.parse(t2)
+      if (j2 && j2.pages && j2.grid) { txt = t2; old = true }
+    } catch (e) {}
+  }
   try {
     j = txt ? JSON.parse(txt) : null
   } catch (e) {
-    throw new Error('site.json in ' + store.name + ' is not valid json')
+    throw new Error('mastermind.json in ' + store.name + ' is not valid json')
   }
+  OLD_JSON = old
   STORE = store
   SITE_HAD_JSON = !!j
-  s = j || newSite(store.name)
+  s = j || newSite(store.startName || store.name)
   sel = null
   SS = []
   dirt = false
@@ -102,12 +114,14 @@ async function connected(store) {
   cn.hidden = true
   document.body.classList.remove('cnon')
   document.getElementById('sv').textContent = store.kind == 'github' ? 'save & push' : 'save'
+  document.getElementById('dl').hidden = store.kind != 'browser'
   document.getElementById('o').textContent = store.name
   document.getElementById('vw').href = 'site/'
   chk()
   draw()
   panel()
-  st.textContent = (store.kind == 'github' ? 'github: ' + store.repo + ' · ' + store.branch : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet')
+  st.textContent = (store.kind == 'github' ? 'github: ' + store.repo + ' · ' + store.branch : store.kind == 'browser' ? 'in this browser: ' + store.name : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet') + (old ? ' · site.json becomes mastermind.json when you save' : '')
+  dlStatus()
 }
 
 async function ownFile(p) {
@@ -116,6 +130,40 @@ async function ownFile(p) {
     return r.text()
   })
   return OWN[p]
+}
+
+function ago(t) {
+  var d = new Date(t), n = new Date(), days = Math.round((new Date(n.toDateString()) - new Date(d.toDateString())) / 864e5)
+  var hm = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  if (days == 0) return 'today at ' + hm
+  if (days == 1) return 'yesterday at ' + hm
+  if (days < 7) return days + ' days ago'
+  return 'on ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
+function dlNote(m, unsaved) {
+  var sv = m.savedAt || m.made
+  if (!sv && !unsaved) return ['', false]
+  var old = m.downloaded && Date.now() - m.downloaded > 7 * 864e5
+  if (!m.downloaded) return ['never downloaded. download it so you have a copy outside this browser', true]
+  if (unsaved || sv > m.downloaded) return ['changes since your last download, ' + ago(m.downloaded), true]
+  return ['downloaded ' + ago(m.downloaded) + ', nothing new since', old]
+}
+
+function dlStatus() {
+  if (!STORE || STORE.kind != 'browser') return
+  var n = dlNote(STORE.meta, dirt)
+  if (!n[0]) return
+  var sp = document.createElement('span'), m = STORE.meta
+  sp.textContent = !m.downloaded ? 'never downloaded' : dirt || (m.savedAt || m.made) > m.downloaded ? 'not downloaded since your changes' : 'downloaded ' + ago(m.downloaded)
+  if (n[1]) sp.className = 'warn'
+  st.appendChild(document.createTextNode(' · '))
+  st.appendChild(sp)
+}
+
+function backupName(p, k) {
+  var i = p.lastIndexOf('.'), sl = p.lastIndexOf('/'), b = i > sl ? p.slice(0, i) : p, x = i > sl ? p.slice(i) : ''
+  return b + '-backup' + (k > 1 ? '-' + k : '') + x
 }
 
 function madeByUs(path, old) {
@@ -139,7 +187,8 @@ async function save() {
     st.textContent = 'building pages...'
     var b = build(), files = b.f
     s.out = b.now
-    files['site.json'] = JSON.stringify(s, null, 2) + '\n'
+    s.mastermind = 1
+    files['mastermind.json'] = JSON.stringify(s, null, 2) + '\n'
     for (var r of RUNTIME) files[r] = await ownFile(r)
     if (!(await STORE.exists('fonts.css'))) files['fonts.css'] = ''
     if (!s.icon && !(await STORE.exists('assets/favicon.svg'))) files['assets/favicon.svg'] = await ownFile('assets/favicon.svg')
@@ -148,26 +197,51 @@ async function save() {
       var old = await STORE.readText(p)
       if (old === files[p]) continue
       write.push(p)
-      if (old != null && p != 'site.json' && !madeByUs(p, old)) risky.push(p)
+      if (old != null && p != 'mastermind.json' && !madeByUs(p, old)) risky.push([p, old])
     }
-    if (risky.length && !confirm('these files are already in ' + STORE.name + ' and were not made by mastermind. saving replaces them:\n\n' + risky.join('\n') + '\n\nreplace them?')) {
-      s.out = oldOut
-      st.textContent = 'not saved'
-      return
+    var bk = [], bj = null
+    if (risky.length) {
+      try { bj = JSON.parse((await STORE.readText('mastermind-backup.json')) || 'null') } catch (e) {}
+      bj = bj && bj.backups ? bj : { backups: [] }
+      var used = {}
+      for (var rk of risky) {
+        var n, k = 1
+        do n = backupName(rk[0], k++)
+        while (used[n] || files[n] != null || await STORE.exists(n))
+        used[n] = 1
+        bk.push([rk[0], n, rk[1]])
+      }
+      if (!confirm('these files are already in ' + STORE.name + ' and were not made by mastermind:\n\n' + bk.map(function (x) { return x[0] + '  →  copy kept as ' + x[1] }).join('\n') + '\n\nmastermind keeps a copy of each one, then saves its own version over it. go ahead?')) {
+        s.out = oldOut
+        st.textContent = 'not saved, nothing was changed'
+        return
+      }
     }
     st.textContent = gh ? 'getting the commit ready...' : 'saving...'
+    for (var x of bk) {
+      await STORE.write(x[1], x[2])
+      var d0 = new Date(), z = function (v) { return String(v).padStart(2, '0') }
+      bj.backups.push({ file: x[1], of: x[0], at: d0.getFullYear() + '-' + z(d0.getMonth() + 1) + '-' + z(d0.getDate()) + ' ' + z(d0.getHours()) + ':' + z(d0.getMinutes()) })
+    }
+    if (bk.length) await STORE.write('mastermind-backup.json', JSON.stringify(bj, null, 2) + '\n')
     for (var w of write) await STORE.write(w, files[w])
+    if (OLD_JSON) await STORE.remove('site.json')
     for (var o of b.del) await STORE.removePage(o)
     if (gh) st.textContent = 'pushing to ' + STORE.repo + '...'
     var res = await STORE.finish((note || '').trim() || 'update pages from mastermind')
     SITE_HAD_JSON = true
+    OLD_JSON = false
     dirt = false
     LAST = JSON.stringify(s)
     try { localStorage.removeItem(draftKey()) } catch (e) {}
     draw()
-    var cut = PO.length ? ' · text cut off on: ' + PO.join(', ') : ''
+    var cut = (bk.length ? ' · ' + bk.length + (bk.length == 1 ? ' backup' : ' backups') + ' kept' : '') + (PO.length ? ' · text cut off on: ' + PO.join(', ') : '')
     if (gh) st.textContent = (res.same ? 'nothing changed, nothing pushed ' : 'pushed ' + res.sha.slice(0, 7) + ' to ' + STORE.branch + ' ') + new Date().toLocaleTimeString() + cut
-    else st.textContent = 'saved ' + s.pages.length + (s.pages.length == 1 ? ' page' : ' pages') + ' to ' + STORE.name + ' ' + new Date().toLocaleTimeString() + cut
+    else st.textContent = 'saved ' + s.pages.length + (s.pages.length == 1 ? ' page' : ' pages') + (STORE.kind == 'browser' ? ' in this browser ' : ' to ' + STORE.name + ' ') + new Date().toLocaleTimeString() + cut
+    if (STORE.kind == 'browser') {
+      await STORE.note({ savedAt: Date.now() })
+      dlStatus()
+    }
   } catch (e) {
     s.out = oldOut
     st.textContent = 'not saved: ' + e.message
@@ -196,6 +270,27 @@ function showConnect() {
     fm.remember.checked = !!localStorage.getItem('mastermind-github')
   }
   cn.querySelector('.cn-close').hidden = !STORE
+  var nf = cn.querySelector('#cn-new-folder'), cont = cn.querySelector('.cn-cont')
+  nf.disabled = !FolderStorage.supported()
+  cn.querySelector('.cn-new-note').textContent = FolderStorage.supported()
+    ? 'start in this browser keeps the site here until you download it as a folder. make it in a new folder saves straight into a folder you make in the picker.'
+    : 'it\'s kept in this browser until you download it as a folder. making a new folder needs chrome or edge.'
+  cont.hidden = true
+  BrowserStorage.current().then(function (m) {
+    if (!m) return
+    cont.hidden = false
+    var bt = cn.querySelector('#cn-continue'), nb = document.createElement('b'), dn = cn.querySelector('.cn-dl'), w = dlNote(m), sp = document.createElement('span')
+    sp.textContent = w[0]
+    dn.textContent = ''
+    dn.appendChild(sp)
+    if (m.kept === false) dn.appendChild(document.createTextNode(' · this browser may clear it if your disk fills up'))
+    dn.className = 'cn-dl' + (w[1] ? ' warn' : '')
+    dn.hidden = !w[0] && m.kept !== false
+    nb.textContent = '"' + m.name + '"'
+    bt.textContent = 'continue '
+    bt.appendChild(nb)
+    bt.appendChild(document.createTextNode(', started in this browser'))
+  })
 }
 
 function cnError(m) {
@@ -216,6 +311,35 @@ async function tryConnect(fn) {
 }
 
 cn.querySelector('#cn-folder').onclick = function () { tryConnect(FolderStorage.pick) }
+function newName() {
+  return cn.querySelector('#cn-name').value.trim() || 'my site'
+}
+cn.querySelector('#cn-new-folder').onclick = function () {
+  tryConnect(async function () {
+    var f = await FolderStorage.pick()
+    f.startName = newName()
+    return f
+  })
+}
+cn.querySelector('#cn-new-browser').onclick = function () {
+  tryConnect(async function () {
+    var m = await BrowserStorage.current()
+    if (m && !confirm('you already have "' + m.name + '" in this browser. starting a new site throws it away. download it first if you want to keep it.\n\nthrow away "' + m.name + '" and start a new site?')) return null
+    var b = await BrowserStorage.start(newName())
+    try { localStorage.removeItem('mastermind-draft:' + b.id) } catch (e) {}
+    await b.note({ kept: await BrowserStorage.keep() })
+    return b
+  })
+}
+cn.querySelector('#cn-continue').onclick = function () {
+  tryConnect(async function () {
+    var b = await BrowserStorage.reopen()
+    if (!b) return null
+    var k = await BrowserStorage.keep()
+    if (k !== b.meta.kept) await b.note({ kept: k })
+    return b
+  })
+}
 cn.querySelector('#cn-again').onclick = function () {
   tryConnect(async function () {
     return (await FolderStorage.reopen()) || FolderStorage.pick()
@@ -246,6 +370,19 @@ cn.querySelector('.cn-close').onclick = function () {
 
 document.getElementById('o').onclick = showConnect
 document.getElementById('sv').onclick = save
+document.getElementById('dl').onclick = async function () {
+  if (!STORE || STORE.kind != 'browser') return
+  if (dirt || !SITE_HAD_JSON) await save()
+  if (dirt || !SITE_HAD_JSON) return
+  st.textContent = 'zipping...'
+  try {
+    var n = await downloadSite(STORE)
+    await STORE.note({ downloaded: Date.now() })
+    st.textContent = 'downloaded ' + folderName(STORE.name) + '.zip, ' + n + ' files. unzip it to get the site folder'
+  } catch (e) {
+    st.textContent = 'could not download: ' + e.message
+  }
+}
 document.getElementById('pv').onclick = function () {
   if (!STORE) return showConnect()
   try {
