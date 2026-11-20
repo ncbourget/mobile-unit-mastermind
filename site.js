@@ -4,7 +4,7 @@ var s, box = document.getElementById('pg')
 
 RT = document.body.dataset.rt || ''
 
-var MM = location.search.indexOf('mm=') > -1
+var MM = location.search.indexOf('mm=') > -1, LV = !!document.body.dataset.live, LP0 = null
 
 function dft() {
   var d = null
@@ -14,7 +14,38 @@ function dft() {
   return fetch(RT + 'mastermind.json?' + Date.now()).then(function (r) { return r.json() })
 }
 
+function live() {
+  return fetch('/mastermind-live/draft', { cache: 'no-store' }).then(function (r) { return r.json() }).then(function (d) {
+    if (!d.s) return d
+    LP0 = d
+    return d.s
+  })
+}
+
 function load() {
+  if (LV) {
+    var tg = document.createElement('div')
+    tg.id = 'pvw'
+    tg.textContent = 'live from Mastermind'
+    document.body.appendChild(tg)
+    var es = new EventSource('/mastermind-live/events'), tm
+    es.onmessage = function () {
+      clearTimeout(tm)
+      tm = setTimeout(function () {
+        live().then(function (j) {
+          s = j
+          mig(s)
+          LS = s.langs || ['es']
+          if (LP0 && LP0.lang && LS.indexOf(LP0.lang) > -1) L = LP0.lang
+          if (LP0) CUR = LP0.page || ''
+          go()
+        })
+      }, 60)
+    }
+    es.onerror = function () { tg.textContent = 'lost Mastermind, trying again' }
+    es.onopen = function () { tg.textContent = 'live from Mastermind' }
+    return live()
+  }
   if (MM) {
     var tg = document.createElement('div')
     tg.id = 'pvw'
@@ -24,13 +55,19 @@ function load() {
   return fetch(RT + 'mastermind.json').then(function (r) { return r.json() })
 }
 
-if (MM) document.addEventListener('click', function (e) {
+if (MM || LV) document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a[href]')
   if (!a || a.target == '_blank') return
   var u = new URL(a.href, location.href), base = new URL(RT || './', location.href)
   if (u.origin != base.origin || u.pathname.indexOf(base.pathname) != 0 || u.hash && u.pathname == location.pathname) return
   e.preventDefault()
-  location.href = location.pathname + '?mm=1&p=' + encodeURIComponent(u.pathname.slice(base.pathname.length).replace(/\/?(index\.html)?$/, ''))
+  var sl = u.pathname.slice(base.pathname.length).replace(/\/?(index\.html)?$/, '')
+  if (LV) {
+    CUR = sl
+    scrollTo(0, 0)
+    return go()
+  }
+  location.href = location.pathname + '?mm=1&p=' + encodeURIComponent(sl)
 })
 
 load().then(function (j) {
@@ -40,6 +77,10 @@ load().then(function (j) {
   L = localStorage.getItem('lng')
   if (LS.indexOf(L) < 0) L = LS[0]
   CUR = MM ? new URLSearchParams(location.search).get('p') || '' : document.body.dataset.p != null ? document.body.dataset.p : new URLSearchParams(location.search).get('p') || ''
+  if (LP0) {
+    CUR = LP0.page || ''
+    if (LP0.lang && LS.indexOf(LP0.lang) > -1) L = LP0.lang
+  }
   var mm = matchMedia('(max-width: ' + (s.grid.bp || 700) + 'px)')
   MOB = mm.matches
   mm.onchange = function () { MOB = mm.matches; go() }
