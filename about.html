@@ -235,7 +235,7 @@ pre {
 <li><b>open a folder</b> only works in Chrome and Edge (and other browsers built on Chrome, like Brave, Arc and Opera). Safari and Firefox don't let websites open a folder on your computer.</li>
 <li><b>connect a GitHub repo</b> and <b>start in this browser</b> work in any up to date browser.</li>
 <li>Mastermind is built for a laptop or desktop. it opens on a tablet but it's cramped. on a phone it won't open at all, and shows its address so you can open it on a computer instead. to see your site on a phone while you design, use phone preview.</li>
-<li>if photos or fonts stop showing up after a hard reload (shift + reload), reload once more the normal way.</li>
+<li>a hard reload (⌘⇧R or ctrl+shift+R) turns off the part of Mastermind that loads photos and fonts. Mastermind reloads once by itself to turn it back on, and loads photos another way if that's not enough.</li>
 </ul>
 </section>
 
@@ -305,7 +305,7 @@ pre {
 <h3>using your own css and js</h3>
 <p>Mastermind pages can load your site's own files, so your styles, sliders and menus keep working on them.</p>
 <ul>
-<li><b>the code editor</b> (dev tab → open the code editor) lists your site's own css, js and html files. edit them, or make new ones. files Mastermind makes aren't listed, since it rewrites them on every save. your <code>fonts.css</code> is listed too, and every page already loads it.</li>
+<li><b>the code editor</b> (dev tab → open the code editor) lists your site's own css, js and html files. edit them, or make new ones. files Mastermind makes, like each page's <code>index.html</code>, are listed separately under <b>made by Mastermind</b>. you can read them to see exactly what saving writes, but not edit them, since they're rebuilt from your design on every save. your <code>fonts.css</code> is listed with your files, and every page already loads it.</li>
 <li>tick <b>use on every Mastermind page</b> on a css or js file, or pick files for one page under <b>extra scripts and styles</b> in the page tab.</li>
 <li>your css loads with the page. your scripts load after Mastermind has drawn the page, so they find what they're looking for. scripts that wait for the page to load still run.</li>
 <li>Mastermind redraws the page when someone switches language or a screen crosses the phone size. a script that sets things up once can listen for <code>mastermind-drawn</code> on <code>document</code> to set them up again.</li>
