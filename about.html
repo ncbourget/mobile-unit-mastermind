@@ -125,6 +125,7 @@ pre {
 <li><a href="#browsers">browsers</a></li>
 <li><a href="#files">where files go</a></li>
 <li><a href="#saving">saving and overwriting</a></li>
+<li><a href="#freeform">grid or freeform</a></li>
 <li><a href="#coded">sites you coded yourself</a></li>
 <li><a href="#codespace">codespaces</a></li>
 <li><a href="#inside">inside your site</a></li>
@@ -174,6 +175,19 @@ pre {
 <p>before mastermind takes over a page, it will copy it to <code>page-backup.html</code> and list it in <code>mastermind-backup.json</code>, so the original is kept and mastermind leaves the backup alone.</p>
 </section>
 
+<section id="freeform">
+<h2>grid or freeform</h2>
+<p>every page has a layout, set in the page tab. new pages start with the same layout as the page you're on.</p>
+<ul>
+<li><b>grid:</b> things snap to columns and rows, and the phone version is built from desktop for you.</li>
+<li><b>freeform:</b> place anything anywhere, nothing snaps. switching a page to freeform keeps everything where it is.</li>
+<li>on a freeform page, positions and sizes scale with the width of the screen, but text stays the size you set. on a much narrower or wider window, text can run into the things around it. check your page at a few window sizes before you save.</li>
+<li>phones get their own layout, stacked top to bottom from the desktop page. move things in phone view to change only the phone. <b>rebuild the phone layout from desktop</b> starts the phone over.</li>
+<li>switching a freeform page back to grid snaps everything to the nearest columns and rows, and the phone layout is rebuilt from desktop.</li>
+<li>blocks shared across every page stay on the grid, and so does a background set to the whole page.</li>
+</ul>
+</section>
+
 <section id="coded">
 <h2>sites you coded yourself <span class="soon">coming</span></h2>
 <p>mastermind will be able to read a page you wrote by hand and make an editable copy of it, one page at a time. pick the page in the page menu and press <b>interpret</b>. pages you don't interpret are never touched, so hand-written and mastermind pages can live in one site.</p>
@@ -183,7 +197,7 @@ pre {
 <li>hover effects and animations are dropped.</li>
 <li>mastermind has two layouts, desktop and phone. a page that changes at several screen widths gets the closest match at each end, and the widths in between are approximated.</li>
 <li>forms and deeply nested layouts come out roughly right, not exact.</li>
-<li>by default things snap to the grid. turn that off and mastermind keeps the exact positions from your code instead. <span class="soon">freeform mode coming</span></li>
+<li>on a grid page things snap to columns and rows. on a freeform page mastermind will keep the exact positions from your code instead.</li>
 </ul>
 <p>until then you can still add new mastermind pages next to your hand-written ones. mastermind will ask before it touches your files.</p>
 </section>
