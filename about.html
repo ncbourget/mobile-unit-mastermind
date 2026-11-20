@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>read this first / Mobile Unit Mastermind</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+body {
+  margin: 0;
+  background: #e9e9e6;
+  color: #111;
+  font: 16px/1.5 Helvetica, Arial, sans-serif;
+}
+
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 16px 80px;
+}
+
+.top {
+  margin-bottom: 36px;
+  font-size: 14px;
+}
+
+a {
+  color: inherit;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 38px;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+}
+
+.lede {
+  margin: 0 0 36px;
+  font-size: 18px;
+  color: #444;
+}
+
+section {
+  margin-bottom: 14px;
+  padding: 20px 22px 8px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+h3 {
+  margin: 18px 0 6px;
+  font-size: 15px;
+}
+
+p, li {
+  color: #333;
+}
+
+ul, ol {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 4px;
+}
+
+code {
+  padding: 1px 5px;
+  font: inherit;
+  font-size: 14px;
+  background: #f0f0ed;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  background: #f0f0ed;
+  border-radius: 5px;
+  font: 14px Helvetica, Arial, sans-serif;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.soon {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #111;
+  background: #fff45c;
+  border-radius: 10px;
+  vertical-align: 3px;
+}
+
+.toc {
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.toc li {
+  display: inline;
+  margin-right: 12px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="top"><a href="./">← back to mastermind</a></p>
+
+<h1>read this first</h1>
+<p class="lede">mastermind is early. it works, it saves real files, and it is not perfect yet. here is what it can and can't do, and where your files go.</p>
+
+<ul class="toc">
+<li><a href="#browsers">browsers</a></li>
+<li><a href="#files">where files go</a></li>
+<li><a href="#saving">saving and overwriting</a></li>
+<li><a href="#coded">sites you coded yourself</a></li>
+<li><a href="#codespace">codespaces</a></li>
+<li><a href="#inside">inside your site</a></li>
+<li><a href="#private">private on cloudflare</a></li>
+<li><a href="#limits">other limits</a></li>
+</ul>
+
+<section id="browsers">
+<h2>browsers</h2>
+<ul>
+<li><b>open a folder</b> only works in chrome and edge (and other browsers built on chrome, like brave, arc and opera). safari and firefox don't let websites open a folder on your computer.</li>
+<li><b>connect a github repo</b> works in any up to date browser.</li>
+<li>mastermind is built for a laptop or desktop screen. it opens on a tablet but it's cramped, and phones are not supported.</li>
+<li>if photos or fonts stop showing up after a hard reload (shift + reload), reload once more the normal way.</li>
+</ul>
+</section>
+
+<section id="files">
+<h2>where your files go</h2>
+<p>nowhere but your own folder or your own repo. there is no mastermind account and nothing is uploaded to a mastermind server.</p>
+<ul>
+<li><b>folder:</b> files are read and written straight to the folder you picked.</li>
+<li><b>github:</b> this browser talks to github directly with your token. make a fine-grained token that can only see the one repo, give it <code>contents: read and write</code>, and set it to expire.</li>
+<li><b>remember on this computer</b> keeps the token in this browser. don't tick it on a shared or school computer. <b>forget the token</b> on the connect screen clears it.</li>
+<li>changes you haven't saved stay in this browser, so a closed tab can come back. they are not backed up anywhere else.</li>
+</ul>
+</section>
+
+<section id="saving">
+<h2>saving and overwriting</h2>
+<p>saving writes these files into your site:</p>
+<ul>
+<li><code>site.json</code>, which holds every page you made in mastermind. this is how mastermind knows a site is its own and reopens it exactly.</li>
+<li>one <code>index.html</code> per page, plus <code>404.html</code></li>
+<li><code>render.js</code>, <code>site.js</code> and <code>page.css</code>, which draw the pages. they are replaced with the newest version on every save, which is how your site picks up mastermind updates.</li>
+<li><code>fonts.css</code> and a favicon, only if your site doesn't have them yet</li>
+</ul>
+<h3>what gets overwritten</h3>
+<ul>
+<li>the pages mastermind makes are rebuilt from <code>site.json</code> every time you save. if you edit one of those html files by hand, the next save replaces your edit. make changes in mastermind, or keep hand-written pages separate.</li>
+<li>if saving would replace a file mastermind didn't make, like your own <code>index.html</code>, it lists the files and asks first. say no and nothing is written.</li>
+<li>on github, if someone else pushed since you connected, mastermind stops instead of overwriting their work. reconnect to pick up their changes, then save again.</li>
+<li>on most hosts (github pages, cloudflare pages, netlify) a push to the main branch goes live a minute later. saving to github is publishing.</li>
+<li>keep your site in git, so any save can be rolled back.</li>
+</ul>
+<h3>backups <span class="soon">coming</span></h3>
+<p>before mastermind takes over a page, it will copy it to <code>page-backup.html</code> and list it in <code>mastermind-backup.json</code>, so the original is kept and mastermind leaves the backup alone.</p>
+</section>
+
+<section id="coded">
+<h2>sites you coded yourself <span class="soon">coming</span></h2>
+<p>mastermind will be able to read a page you wrote by hand and make an editable copy of it, one page at a time. pick the page in the page menu and press <b>interpret</b>. pages you don't interpret are never touched, so hand-written and mastermind pages can live in one site.</p>
+<p>it's a best guess, not a perfect copy:</p>
+<ul>
+<li><b>javascript gets flattened.</b> mastermind reads what the page looks like once it has loaded, not what your scripts do. menus that open, sliders, toggles, things that move or react to clicks come across as still pictures of themselves, or not at all. your <code>.js</code> files stay in your site, but the mastermind copy of the page doesn't use them.</li>
+<li>hover effects and animations are dropped.</li>
+<li>mastermind has two layouts, desktop and phone. a page that changes at several screen widths gets the closest match at each end, and the widths in between are approximated.</li>
+<li>forms and deeply nested layouts come out roughly right, not exact.</li>
+<li>by default things snap to the grid. turn that off and mastermind keeps the exact positions from your code instead. <span class="soon">freeform mode coming</span></li>
+</ul>
+<p>until then you can still add new mastermind pages next to your hand-written ones. mastermind will ask before it touches your files.</p>
+</section>
+
+<section id="codespace">
+<h2>using it in a codespace</h2>
+<p>the open a folder button opens a folder on your own computer, not inside a codespace. in a codespace, connect with github instead:</p>
+<ol>
+<li>open mastermind and connect the repo your codespace is working on.</li>
+<li>design and save. mastermind pushes a commit.</li>
+<li>in the codespace terminal, pull it in:</li>
+</ol>
+<pre>git pull</pre>
+<p>you can also run mastermind inside the codespace itself. download it into the codespace:</p>
+<pre>git clone https://github.com/ncbourget/mobile-unit-mastermind.git</pre>
+<pre>cd mobile-unit-mastermind && python3 -m http.server 8000</pre>
+<p>open port 8000 from the ports tab, then connect with github as above.</p>
+<h3>a mastermind command <span class="soon">coming</span></h3>
+<p>a <code>mum</code> command you install once. run it inside any site's folder and mastermind opens with that folder, in any browser, with no token needed. <code>mum update</code> gets the newest version. nothing is added to your site's repo.</p>
+</section>
+
+<section id="inside">
+<h2>putting mastermind inside your site</h2>
+<p>for a group, you can keep mastermind at an address on your own site, like <code>yoursite.com/mastermind/</code>, so everyone opens the same editor.</p>
+<ol>
+<li>download mastermind: on its github page, <b>code → download zip</b>, or clone it as above.</li>
+<li>make a folder named <code>mastermind</code> at the top of your site and put every mastermind file in it.</li>
+<li>push your site. when it's live, open <code>yoursite.com/mastermind/</code>.</li>
+<li>each person connects with github using their own token, so each person needs write access to the repo.</li>
+</ol>
+<ul>
+<li>mastermind won't make a page named <code>mastermind</code>, so it can't save over itself.</li>
+<li>to update it, replace the files in that folder with a newer download and push.</li>
+<li>the editor files hold no passwords or tokens. tokens stay in each person's browser. still, you probably don't want the whole internet opening your editor, so make it private:</li>
+</ul>
+</section>
+
+<section id="private">
+<h2>making that page private on cloudflare</h2>
+<p>this works when your site runs on cloudflare pages, or when its domain goes through cloudflare (the orange cloud is on in dns). a plain <code>username.github.io</code> address can't be protected this way.</p>
+<ol>
+<li>in the cloudflare dashboard, open <b>zero trust</b>. the first time, pick a team name and the free plan.</li>
+<li>go to <b>access → applications → add an application</b> and choose <b>self-hosted</b>.</li>
+<li>set the domain to your site and the path to <code>mastermind</code>.</li>
+<li>add a policy: action <b>allow</b>, include <b>emails</b>, and list the people who can edit.</li>
+<li>save. anyone opening <code>/mastermind/</code> now gets a sign-in code by email, and only the listed people get in.</li>
+</ol>
+<p>the free plan covers up to 50 people. this hides the editor only. the rest of your site stays public, and it can't stop someone with write access to the repo. cloudflare moves its menus around now and then, so the names above may shift a little.</p>
+</section>
+
+<section id="limits">
+<h2>other limits</h2>
+<ul>
+<li>the calendar and mailing list blocks are hidden for now. they need a server to work, and mastermind doesn't run one.</li>
+<li>photos are shrunk to 2400 pixels on the longest side when you add them.</li>
+<li>on github, new photos wait in this browser until you save. close the tab first and they're gone.</li>
+<li>very large repos (tens of thousands of files) are too big to open from the browser.</li>
+<li>fonts come from your site's <code>fonts.css</code>. add <code>@font-face</code> rules there and mastermind lists them under "this site". only use fonts your license lets you put on the web.</li>
+<li>screens narrower than 700 pixels get the phone layout. change it in the dev tab.</li>
+<li>if your site lives in a folder of its address, like a github pages project site at <code>username.github.io/repo-name/</code>, set <b>site lives at</b> in the dev tab to <code>/repo-name/</code>.</li>
+<li>preview needs browser storage. if your browser blocks it, preview won't open.</li>
+</ul>
+</section>
+
+<p class="top"><a href="./">← back to mastermind</a></p>
+</div>
+</body>
+</html>
