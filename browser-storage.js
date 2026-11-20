@@ -13,7 +13,7 @@ BrowserStorage.db = function () {
       q.result.createObjectStore('meta')
     }
     q.onsuccess = function () { ok(q.result) }
-    q.onerror = function () { no(new Error('this browser is not letting mastermind store anything. try a normal window, not a private one')) }
+    q.onerror = function () { no(new Error('this browser is not letting Mastermind store anything. try a normal window, not a private one')) }
   })
 }
 

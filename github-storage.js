@@ -58,13 +58,13 @@ GitHubStorage.prototype.api = async function (path, method, body) {
       cache: 'no-store'
     })
   } catch (e) {
-    throw new Error('could not reach github, check the connection')
+    throw new Error('could not reach GitHub, check the connection')
   }
-  if (r.status == 401) throw new Error('github did not accept the token')
-  if (r.status == 404) throw new Error('github could not find ' + this.repo + (path ? '' : '. check the name, and that the token can see this repo'))
+  if (r.status == 401) throw new Error('GitHub did not accept the token')
+  if (r.status == 404) throw new Error('GitHub could not find ' + this.repo + (path ? '' : '. check the name, and that the token can see this repo'))
   var j = await r.json().catch(function () { return {} })
   if (!r.ok) {
-    var e = new Error('github said ' + r.status + (j.message ? ': ' + j.message : ''))
+    var e = new Error('GitHub said ' + r.status + (j.message ? ': ' + j.message : ''))
     e.status = r.status
     throw e
   }
@@ -98,7 +98,7 @@ GitHubStorage.prototype.readFile = async function (path) {
   var p = fetch('https://api.github.com/repos/' + this.repo + '/git/blobs/' + sha, {
     headers: { authorization: 'Bearer ' + this.token, accept: 'application/vnd.github.raw+json', 'x-github-api-version': '2022-11-28' }
   }).then(function (r) {
-    if (!r.ok) throw new Error('github said ' + r.status)
+    if (!r.ok) throw new Error('GitHub said ' + r.status)
     return r.blob()
   }).catch(function (e) {
     self.cache.delete(sha)
@@ -189,7 +189,7 @@ GitHubStorage.prototype.finish = async function (message) {
     this.changes.clear()
     return { saved: true, sha: this.head, same: true }
   }
-  var c = await this.api('/git/commits', 'POST', { message: message || 'update from mastermind', tree: nt.sha, parents: [this.head] })
+  var c = await this.api('/git/commits', 'POST', { message: message || 'update from Mastermind', tree: nt.sha, parents: [this.head] })
   try {
     await this.api('/git/refs/heads/' + encodeURIComponent(this.branch), 'PATCH', { sha: c.sha, force: false })
   } catch (e) {
