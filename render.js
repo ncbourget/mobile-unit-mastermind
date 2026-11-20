@@ -1,4 +1,4 @@
-var LP = '', LQ = '', PM = {}, BZ = 18, RT = '', L = 'es', LS = ['es'], CUR = '', ST = {}, MOB = false, AU = {}, GR = {}
+var LP = '', LQ = '', PM = {}, BZ = 18, RT = '', L = 'en', LS = ['en'], CUR = '', ST = {}, MOB = false, AU = {}, GR = {}
 
 function tx(v) {
   if (v && typeof v == 'object') return v[L] != null && v[L] !== '' ? v[L] : (v[LS[0]] || '')
@@ -553,10 +553,10 @@ function mq(el, b) {
   el.appendChild(w)
 }
 
-var EV = null, EVD = 0, EVX = 0, ETZ = 'America/New_York', EFM = {}
+var EVC = {}, EVX = 0, ETZ = 'UTC', ENOW = 0, EFM = {}
 var EVW = {
-  es: { add: 'añadir a mi calendario', none: 'no hay eventos próximos', past: 'eventos pasados', all: 'todo el día', demo: 'eventos de muestra · el calendario aún no está conectado', today: 'hoy', g: 'google calendar', i: 'apple, outlook (.ics)' },
-  en: { add: 'add to my calendar', none: 'no upcoming events', past: 'past events', all: 'all day', demo: 'sample events · the calendar is not connected yet', today: 'today', g: 'google calendar', i: 'apple, outlook (.ics)' }
+  es: { add: 'añadir a mi calendario', none: 'no hay eventos próximos', past: 'eventos pasados', all: 'todo el día', today: 'hoy', g: 'google calendar', i: 'apple, outlook (.ics)' },
+  en: { add: 'add to my calendar', none: 'no upcoming events', past: 'past events', all: 'all day', today: 'today', g: 'google calendar', i: 'apple, outlook (.ics)' }
 }
 
 function ew() { return EVW[L] || EVW.en }
@@ -573,27 +573,61 @@ function esc0(v) {
   return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function evs0() {
-  var n = new Date(), o = [], d0 = new Date(n.getFullYear(), n.getMonth(), n.getDate())
-  function at(dd, h, m) { var d = new Date(d0); d.setDate(d.getDate() + dd); d.setHours(h, m || 0); return d.getTime() }
-  function nxt(wd, min) { var k = (wd - d0.getDay() + 7) % 7; while (k < (min || 0)) k += 7; return k }
-  var th = nxt(4)
-  for (var i = 0; i < 6; i++) o.push({ id: 'os' + i, t: 'Open studio · taller abierto', s: at(th + i * 7, 18), e: at(th + i * 7, 21), loc: 'ñ press, East Boston', d: 'Drop in, bring a project or start one. Presses, ink and paper are here.\nVen a imprimir, todo el material está aquí.' })
-  var sa = nxt(6, 8), su = nxt(0, 18), sm = nxt(6, 26)
-  o.push({ id: 'rs', t: 'Riso 101 workshop', s: at(sa, 13), e: at(sa, 16), loc: 'ñ press, East Boston', d: 'Learn to print on the risograph, from making a file to pulling two colors. 8 spots.', img: 'photos/Studios/Riso_Prints/©IaritzaMenjivar-8100.JPG' })
-  o.push({ id: 'zn', t: 'Zine night', s: at(su, 17), e: at(su, 20), loc: 'ñ press, East Boston', d: 'Cut, paste, fold and staple. We bring the copier.', img: 'photos/Projects/Zine_Night_Workshop/©IaritzaMenjivar-6100.JPG' })
-  o.push({ id: 'mk', t: 'Holiday print market', s: at(sm, 0), e: at(sm + 2, 0), ad: 1, loc: 'ñ press, East Boston', d: 'Prints, zines and cards from the studio members.', img: 'photos/Studios/Final_day/©IaritzaMenjivar-8364.JPG' })
-  o.push({ id: 'ps', t: 'Poster night', s: at(-9, 18), e: at(-9, 21), loc: 'ñ press, East Boston' })
-  return o.sort(function (a, b) { return a.s - b.s })
+function wall(t, tz) {
+  var p = {}
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: tz || undefined, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(t).forEach(function (x) { p[x.type] = x.value })
+  } catch (e) {
+    return wall(t)
+  }
+  return Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second)
 }
 
-function evl() {
-  if (EV || EVD) return
-  EVD = 1
-  fetch('/events').then(function (r) { return r.ok ? r.json() : { demo: 1 } }).catch(function () { return { demo: 1 } }).then(function (j) {
-    EV = j.demo ? { ev: evs0(), demo: 1 } : j
-    if (window.evup) evup()
-  })
+function evkey(b) { return 'g:' + String(b.gcal || '').trim() }
+
+function hm0(v) {
+  var m = /^(\d{1,2}):(\d{2})$/.exec(String(v || '').trim())
+  return m && +m[1] < 24 && +m[2] < 60 ? (m[1].length < 2 ? '0' : '') + m[1] + ':' + m[2] : ''
+}
+
+function evwrit(b) {
+  return (b.evs || []).map(function (it, i) {
+    var d = String(it.day || '').trim(), f = hm0(it.from), t = hm0(it.to)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(Date.parse(d))) return null
+    var st = Date.parse(d + 'T' + (f || '00:00') + ':00Z'), en = f ? (t ? Date.parse(d + 'T' + t + ':00Z') : st + 36e5) : st + 864e5
+    if (en <= st) en += 864e5
+    return { id: (b.id || 'ev') + '-' + i, t: tx(it.t), s: st, e: en, ad: !f, loc: it.loc || '', d: tx(it.d), img: it.img || '', u: it.href ? url(it.href) : '' }
+  }).filter(Boolean).sort(function (a, c) { return a.s - c.s })
+}
+
+function gtext(h) {
+  var d = document.createElement('div')
+  d.innerHTML = String(h || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n')
+  return d.textContent.trim()
+}
+
+function evget(b) {
+  var k = evkey(b)
+  if (EVC[k]) return
+  EVC[k] = { wait: 1 }
+  var t0 = new Date(Date.now() - 90 * 864e5).toISOString()
+  fetch('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(String(b.gcal).trim()) + '/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin=' + encodeURIComponent(t0) + '&key=' + encodeURIComponent(String(b.gkey).trim()))
+    .then(function (r) { return r.json().then(function (j) { return [r.ok, j] }) })
+    .then(function (x) {
+      var j = x[1]
+      if (!x[0]) return EVC[k] = { err: 'Google Calendar said: ' + ((j.error && j.error.message) || 'no') }
+      var tz = j.timeZone
+      EVC[k] = { tz: tz, ev: (j.items || []).filter(function (e) { return e.status != 'cancelled' && e.start }).map(function (e) {
+        var ad = !!e.start.date
+        return {
+          id: e.id, t: e.summary || '', ad: ad ? 1 : 0, loc: e.location || '', d: gtext(e.description), u: e.htmlLink || '',
+          s: ad ? Date.parse(e.start.date + 'T00:00:00Z') : wall(Date.parse(e.start.dateTime), tz),
+          e: ad ? Date.parse(e.end.date + 'T00:00:00Z') : wall(Date.parse(e.end.dateTime), tz)
+        }
+      }) }
+    })
+    .catch(function () { EVC[k] = { err: 'could not reach Google Calendar' } })
+    .then(function () { if (window.evup) evup() })
 }
 
 function ewhen(e) {
@@ -608,14 +642,16 @@ function ewhen(e) {
 
 function zt(t) { return new Date(t).toISOString().replace(/[-:]|\.\d+/g, '') }
 
+function zf(t) { return zt(t).replace('Z', '') }
+
 function ecal(e) {
-  var d = e.ad ? dk(e.s).replace(/-/g, '') + '/' + dk(e.e).replace(/-/g, '') : zt(e.s) + '/' + zt(e.e)
+  var d = e.ad ? dk(e.s).replace(/-/g, '') + '/' + dk(e.e).replace(/-/g, '') : zf(e.s) + '/' + zf(e.e)
   var g = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(e.t) + '&dates=' + d + '&details=' + encodeURIComponent(e.d || '') + '&location=' + encodeURIComponent(e.loc || '')
   function q(v) { return String(v || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1') }
   var ic = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//mobile unit mastermind//events//EN', 'BEGIN:VEVENT', 'UID:' + e.id + '@mastermind', 'DTSTAMP:' + zt(Date.now()),
-    e.ad ? 'DTSTART;VALUE=DATE:' + d.split('/')[0] : 'DTSTART:' + zt(e.s), e.ad ? 'DTEND;VALUE=DATE:' + d.split('/')[1] : 'DTEND:' + zt(e.e),
+    e.ad ? 'DTSTART;VALUE=DATE:' + d.split('/')[0] : 'DTSTART:' + zf(e.s), e.ad ? 'DTEND;VALUE=DATE:' + d.split('/')[1] : 'DTEND:' + zf(e.e),
     'SUMMARY:' + q(e.t), 'DESCRIPTION:' + q(e.d), 'LOCATION:' + q(e.loc), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n')
-  var w = ew(), fn = (e.t || 'event').toLowerCase().replace(/[^a-z0-9ñ]+/g, '-').replace(/^-|-$/g, '') || 'event'
+  var w = ew(), fn = (e.t || 'event').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event'
   return '<details class="eva"><summary>' + w.add + '</summary><span><a href="' + g + '" target="_blank" rel="noopener">' + w.g + '</a><a href="data:text/calendar;charset=utf-8,' + encodeURIComponent(ic) + '" download="' + fn + '.ics">' + w.i + '</a></span></details>'
 }
 
@@ -636,8 +672,8 @@ function eone(e, b, sm) {
   return x + '</article>'
 }
 
-function elist(el, b) {
-  var now = Date.now(), all = EV.ev || [], up = all.filter(function (e) { return e.e >= now }), pa = all.filter(function (e) { return e.e < now }).reverse()
+function elist(el, b, all) {
+  var now = el.enow || ENOW, up = all.filter(function (e) { return e.e >= now }), pa = all.filter(function (e) { return e.e < now }).reverse()
   var x = up.slice(0, b.n || 5).map(function (e) { return eone(e, b) }).join('')
   if (!up.length) x = '<p class="eve">' + esc0(tx(b.emp) || ew().none) + '</p>'
   if (b.past && pa.length) x += '<h5>' + ew().past + '</h5>' + pa.slice(0, b.past).map(function (e) { return eone(e, b, 1) }).join('')
@@ -645,7 +681,7 @@ function elist(el, b) {
 }
 
 function emon(el, b, ym, sk) {
-  var now = Date.now(), tk = dk(now), all = EV.ev || [], by = {}
+  var now = el.enow || ENOW, tk = dk(now), all = el.evs || [], by = {}
   if (!ym) {
     var nx = all.filter(function (e) { return e.e >= now })[0]
     ym = tk.slice(0, 7)
@@ -680,14 +716,29 @@ function evr(el, b, mm) {
   el.classList.add(b.vw == 'month' ? 'evm' : 'evls')
   if (b.ac) el.style.setProperty('--ac', b.ac)
   if (EVX) return
-  if (!EV) {
-    evl()
-    if (mm) el.innerHTML = '<span class="ph">events</span>'
-    return
+  var c = { ev: evwrit(b) }, tz
+  if (b.cal == 'g') {
+    if (!String(b.gcal || '').trim() || !String(b.gkey || '').trim()) {
+      if (mm) el.innerHTML = '<p class="edm">add the calendar ID and API key in the panel</p>'
+      return
+    }
+    c = EVC[evkey(b)]
+    if (!c) evget(b)
+    if (!c || c.wait) {
+      if (mm) el.innerHTML = '<span class="ph">loading events</span>'
+      return
+    }
+    if (c.err) {
+      el.innerHTML = mm ? '<p class="edm">' + esc0(c.err) + '</p>' : '<p class="eve">' + esc0(tx(b.emp) || ew().none) + '</p>'
+      return
+    }
+    tz = c.tz
   }
+  ENOW = el.enow = wall(Date.now(), tz)
+  el.evs = c.ev || []
   if (b.vw == 'month') emon(el, b)
-  else elist(el, b)
-  if (EV.demo) el.insertAdjacentHTML('afterbegin', '<p class="edm">' + ew().demo + '</p>')
+  else elist(el, b, el.evs)
+  if (mm && !el.evs.length && b.cal != 'g') el.insertAdjacentHTML('afterbegin', '<p class="edm">no events yet. add them in the panel</p>')
 }
 
 var JNW = {
