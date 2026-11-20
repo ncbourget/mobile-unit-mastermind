@@ -86,7 +86,8 @@ function draw() {
     cvp.removeAttribute('style')
     cvp.className = ''
     document.getElementById('mb').textContent = MOB ? 'phone' : 'desktop'
-    return draw0()
+    draw0()
+    return freeup()
   }
   var m0 = MOB
   act(true)
@@ -94,6 +95,15 @@ function draw() {
   act(false)
   draw0()
   act(m0)
+  freeup()
+}
+
+function freeup() {
+  if (MOB || !pg().free) return
+  var nw = pg().blocks.filter(function (b) { return !b.ag && !b.fix && !b.wp && b.on != 'p' && elof(b) })
+  if (!nw.length) return
+  nw.forEach(function (b) { agon(b, true) })
+  draw()
 }
 
 var EMH = null
@@ -163,7 +173,8 @@ function draw0() {
     nw.forEach(function (b) { delete b._h })
   }
   pend(all(), pg())
-  cv.style.setProperty('--gl', 'linear-gradient(to right, rgba(60,100,255,.07) calc(100% - ' + g.gap + 'px), transparent 0), linear-gradient(to top, rgba(255,60,90,.28) 1px, transparent 1px)')
+  cv.classList.toggle('free', !!pg().free)
+  cv.style.setProperty('--gl', pg().free ? 'none' : 'linear-gradient(to right, rgba(60,100,255,.07) calc(100% - ' + g.gap + 'px), transparent 0), linear-gradient(to top, rgba(255,60,90,.28) 1px, transparent 1px)')
   cv.style.setProperty('--gs', 'calc((100% + ' + g.gap + 'px) / ' + c + ') 100%, 100% ' + g.row + 'px')
   cv.style.setProperty('--gp', g.pad + 'px')
   pbg(cv, s, pg())
@@ -254,7 +265,7 @@ function draw0() {
     if (!b.fix && !b.wp) mx = Math.max(mx, ps(b).y + ps(b).h)
   })
   var end = MOB ? mx : Math.max(mx, plr(pg())), cw0 = cv.clientWidth - g.pad * 2, fb0 = 0
-  all().forEach(function (b) { if (b.ag && !b.fix) fb0 = Math.max(fb0, ((b.fy || 0) + (b.fh || 10)) * cw0 / 100) })
+  all().forEach(function (b) { if (b.ag && !b.fix && !hid(b)) fb0 = Math.max(fb0, ((fpos(b).fy || 0) + (fpos(b).fh || 10)) * cw0 / 100) })
   if (fb0 > end * g.row) end = Math.ceil(fb0 / g.row)
   cv.style.minHeight = ((end + 24) * g.row + g.pad * 2) + 'px'
   if (EMH) [].slice.call(EMH.children).forEach(function (x) { if ((x.dataset.k || '').slice(-1) == (cv == cvp ? 'p' : 'd')) x.remove() })
@@ -323,10 +334,11 @@ function mgb(o) {
 function mgp(b, x, y, w, h) {
   var g = pgd(s, pg()), k = step(), W = cw(), c = k.c
   if (b.ag) {
-    b.fx = x / W * 100
-    b.fy = Math.max(0, y / W * 100)
-    b.fw = Math.max(4, w) / W * 100
-    if (!(b.type == 'text' && !b.fm)) b.fh = Math.max(4, h) / W * 100
+    var f = fp(b)
+    f.fx = x / W * 100
+    f.fy = Math.max(0, y / W * 100)
+    f.fw = Math.max(4, w) / W * 100
+    if (!(b.type == 'text' && !b.fm)) f.fh = Math.max(4, h) / W * 100
     return
   }
   var q = MOB ? mpos(b) : b, fb = b.type == 'band' && !b.ic
@@ -461,6 +473,13 @@ function mpos(b) {
   return b.m
 }
 
+function fp(b) {
+  if (!MOB) return b
+  b.m = b.m || {}
+  if (b.m.fw == null) ['fx', 'fy', 'fw', 'fh'].forEach(function (k) { if (b[k] != null) b.m[k] = b[k] })
+  return b.m
+}
+
 function relink(b) {
   delete b.m
   if (b.on == 'p') delete b.on
@@ -591,12 +610,15 @@ function cw() {
 function agon(b, on) {
   var el = elof(b), g = pgd(s, pg()), W = cw(), k = step()
   if (on) {
-    b.fx = el.offsetLeft / W * 100
-    b.fy = el.offsetTop / W * 100
-    b.fw = el.offsetWidth / W * 100
-    b.fh = el.offsetHeight / W * 100
+    var v = { fx: el.offsetLeft / W * 100, fy: el.offsetTop / W * 100, fw: el.offsetWidth / W * 100, fh: el.offsetHeight / W * 100 }
+    if (MOB) {
+      b.m = b.m || {}
+      Object.assign(b.m, v)
+      if (b.fw == null) Object.assign(b, v)
+    } else Object.assign(b, v)
     b.ag = true
   } else {
+    if (b.m) ['fx', 'fy', 'fw', 'fh'].forEach(function (x) { delete b.m[x] })
     var c = k.c
     b.w = Math.max(1, Math.min(c, Math.round((el.offsetWidth + g.gap) / k.w)))
     b.x = Math.max(0, Math.min(c - b.w, Math.round((el.offsetLeft - g.pad) / k.w)))
@@ -620,7 +642,7 @@ function grab(e, b, d, rsz) {
   if (b.fix || b.lk) return
   var k = step(), c = k.c, W = cw()
   var gp = rsz ? [b] : SS.filter(function (x) { return !x.fix && !x.lk })
-  var og = gp.map(function (x) { var p = ps(x); return { x: p.x, y: p.y, w: p.w, h: p.h, fx: x.fx || 0, fy: x.fy || 0, fw: x.fw || 10, fh: x.fh || 10 } })
+  var og = gp.map(function (x) { var p = ps(x), f = fpos(x); return { x: p.x, y: p.y, w: p.w, h: p.h, fx: f.fx || 0, fy: f.fy || 0, fw: f.fw || 10, fh: f.fh || 10 } })
   var gg = og.filter(function (o, i) { return !gp[i].ag })
   if (!gg.length) gg = [{ x: 0, y: 0, w: 0 }]
   var es = gp.map(elof), sx = e.clientX, sy = e.clientY, moved = false
@@ -641,16 +663,16 @@ function grab(e, b, d, rsz) {
     moved = true
     var ux = px / W * 100, uy = py / W * 100, mn = 4 / W * 100
     if (rsz && b.ag) {
-      var o2 = og[0], ft = b.type == 'text' && !b.fm
-      if (/e/.test(rsz)) b.fw = Math.max(mn, o2.fw + ux)
+      var o2 = og[0], ft = b.type == 'text' && !b.fm, f = fp(b)
+      if (/e/.test(rsz)) f.fw = Math.max(mn, o2.fw + ux)
       if (/w/.test(rsz)) {
-        b.fx = Math.min(o2.fx + o2.fw - mn, o2.fx + ux)
-        b.fw = o2.fw + o2.fx - b.fx
+        f.fx = Math.min(o2.fx + o2.fw - mn, o2.fx + ux)
+        f.fw = o2.fw + o2.fx - f.fx
       }
-      if (!ft && /s/.test(rsz)) b.fh = Math.max(mn, o2.fh + uy)
+      if (!ft && /s/.test(rsz)) f.fh = Math.max(mn, o2.fh + uy)
       if (!ft && /n/.test(rsz)) {
-        b.fy = Math.max(0, Math.min(o2.fy + o2.fh - mn, o2.fy + uy))
-        b.fh = o2.fh + o2.fy - b.fy
+        f.fy = Math.max(0, Math.min(o2.fy + o2.fh - mn, o2.fy + uy))
+        f.fh = o2.fh + o2.fy - f.fy
       }
       lay(d, b, 1)
       tfit(d, b)
@@ -673,8 +695,9 @@ function grab(e, b, d, rsz) {
       dy = Math.max(-up, dy)
       gp.forEach(function (x, i) {
         if (x.ag) {
-          x.fx = og[i].fx + ux
-          x.fy = Math.max(0, og[i].fy + uy)
+          var f = fp(x)
+          f.fx = og[i].fx + ux
+          f.fy = Math.max(0, og[i].fy + uy)
         } else {
           var q = MOB ? mpos(x) : x
           q.x = og[i].x + dx
@@ -687,7 +710,7 @@ function grab(e, b, d, rsz) {
     tip.style.display = 'block'
     tip.style.left = e.clientX + 14 + 'px'
     tip.style.top = e.clientY + 14 + 'px'
-    tip.textContent = b.ag ? 'x ' + Math.round(b.fx * W / 100) + 'px  y ' + Math.round(b.fy * W / 100) + 'px  w ' + Math.round(b.fw * W / 100) + 'px  h ' + Math.round(d.offsetHeight) + 'px' : 'x ' + p.x + '  y ' + p.y + '  w ' + p.w + '  h ' + p.h
+    tip.textContent = b.ag ? 'x ' + Math.round(fpos(b).fx * W / 100) + 'px  y ' + Math.round(fpos(b).fy * W / 100) + 'px  w ' + Math.round(fpos(b).fw * W / 100) + 'px  h ' + Math.round(d.offsetHeight) + 'px' : 'x ' + p.x + '  y ' + p.y + '  w ' + p.w + '  h ' + p.h
   }
   d.onpointerup = function () {
     d.onpointermove = d.onpointerup = null
@@ -732,12 +755,13 @@ function nudge(dx, dy, sz) {
   SS.forEach(function (b) {
     if (b.lk || (b.fix && !sz)) return
     if (b.ag) {
+      var f = fp(b)
       if (sz) {
-        b.fw = Math.max(u * 4, (b.fw || 10) + dx * u)
-        b.fh = Math.max(u * 4, (b.fh || 10) + dy * u)
+        f.fw = Math.max(u * 4, (f.fw || 10) + dx * u)
+        f.fh = Math.max(u * 4, (f.fh || 10) + dy * u)
       } else {
-        b.fx = (b.fx || 0) + dx * u
-        b.fy = Math.max(0, (b.fy || 0) + dy * u)
+        f.fx = (f.fx || 0) + dx * u
+        f.fy = Math.max(0, (f.fy || 0) + dy * u)
       }
       return
     }
@@ -2070,8 +2094,77 @@ function relink(a, b, o) {
   }
 }
 
+function setfree(on) {
+  var p = pg()
+  if (!on && !confirm('snap everything on this page back to the grid? positions move to the nearest columns and rows')) return panel()
+  sel = null
+  SS = []
+  if (on) {
+    p.free = true
+    draw()
+    stackphone()
+  } else {
+    draw()
+    p.blocks.forEach(function (b) { if (b.ag && !b.fix && elof(b)) agon(b, false) })
+    delete p.free
+  }
+  dirty(); draw(); panel()
+}
+
+function stackphone() {
+  var p = pg(), g = pgd(s, p), Wd = 1160, m0 = MOB, bl = p.blocks.filter(function (b) { return b.ag && !b.fix && !b.wp && b.on != 'd' })
+  bl.forEach(function (b) { if (b.m) ['fx', 'fy', 'fw', 'fh'].forEach(function (k) { delete b.m[k] }) })
+  var hd = document.createElement('div')
+  hd.style.cssText = 'position:absolute;left:-9999px;top:0;width:390px;box-sizing:border-box;container-type:inline-size'
+  document.body.appendChild(hd)
+  MOB = true
+  grd(hd, g)
+  base(hd, s, p)
+  var W = hd.clientWidth - g.pad * 2, k = Wd / W, gap = 16 / W * 100, pd = g.pad / W * 100
+  var bands = bl.filter(function (b) { return b.type == 'band' && !b.ic }), kids = {}
+  var rest = bl.filter(function (b) { return bands.indexOf(b) < 0 })
+  bands.forEach(function (bd) {
+    kids[bd.id] = rest.filter(function (b) {
+      var c = (b.fy || 0) + (b.fh || 2) / 2
+      return c >= (bd.fy || 0) && c <= (bd.fy || 0) + (bd.fh || 10)
+    })
+  })
+  var lone = bands.filter(function (bd) { return !kids[bd.id].length })
+  rest = rest.concat(lone).sort(function (a, c) { return (a.fy || 0) - (c.fy || 0) || (a.fx || 0) - (c.fx || 0) })
+  var y = pd, at = {}
+  rest.forEach(function (b) {
+    var fw = b.type == 'band' ? 100 : Math.min(100, (b.fw || 10) * k), ft = b.type == 'text' && !b.fm
+    b.m = b.m || {}
+    b.m.fw = fw
+    b.m.fx = b.type == 'band' ? 0 : fw >= 100 ? pd : Math.max(pd, Math.min(pd + 100 - fw, (b.fx || 0) * k))
+    b.m.fy = y
+    if (!ft) b.m.fh = b.type == 'band' ? (b.fh || 10) * k : (b.fh || 10) * fw / (b.fw || 10)
+    var d = document.createElement('div')
+    d.className = 'b'
+    lay(d, b)
+    d.appendChild(bk(b))
+    hd.appendChild(d)
+    var h = (ft ? d.offsetHeight / W * 100 : b.m.fh)
+    at[b.id] = [y, y + h]
+    y += h + gap
+  })
+  bands.forEach(function (bd) {
+    var ks = kids[bd.id]
+    if (!ks.length) return
+    var t = Math.min.apply(0, ks.map(function (b) { return at[b.id][0] })), e = Math.max.apply(0, ks.map(function (b) { return at[b.id][1] }))
+    bd.m = bd.m || {}
+    bd.m.fx = 0
+    bd.m.fw = 100
+    bd.m.fy = Math.max(0, t - pd)
+    bd.m.fh = e - t + pd * 2
+  })
+  hd.remove()
+  MOB = m0
+}
+
 function newpg(src) {
   var p = src ? JSON.parse(JSON.stringify(src)) : { title: 'page', blocks: [] }
+  if (!src && pg() && pg().free) p.free = true
   p.id = Math.random().toString(36).slice(2, 8)
   p.blocks.forEach(function (b) { b.id = Math.random().toString(36).slice(2, 8) })
   s.pages.push(p)
@@ -2147,6 +2240,28 @@ function pgpanel() {
     pn.appendChild(l)
   } else nt('home page, lives at /')
   p.g = p.g || {}
+  hd('layout')
+  var fl = document.createElement('label'), fs = document.createElement('select')
+  fl.textContent = 'layout'
+  fs.innerHTML = '<option value="">grid</option><option value="f">freeform</option>'
+  fs.value = p.free ? 'f' : ''
+  fs.disabled = MOB
+  fs.onchange = function () { setfree(fs.value == 'f') }
+  fl.appendChild(fs)
+  pn.appendChild(fl)
+  if (MOB) nt('switch to desktop to change the layout')
+  else nt(p.free ? 'place anything anywhere, nothing snaps. sizes scale with the width of the screen' : 'things snap to columns and rows')
+  if (p.free) {
+    ovf('padding', p.g, 'pad', s.grid, 0)
+    hd('phone layout')
+    nt('phones get their own spots, stacked top to bottom from the desktop page. move things in phone view to change just the phone')
+    btn('rebuild the phone layout from desktop', function () {
+      if (!confirm('restack every block on phones? spots you moved in phone view are replaced')) return
+      stackphone()
+      dirty(); draw(); panel()
+    })
+    return
+  }
   hd('grid')
   ovf('columns', p.g, 'cols', s.grid, 1)
   ovf('column gap', p.g, 'gap', s.grid, 0)
@@ -2753,7 +2868,7 @@ function pnl() {
   } else {
     var pz = document.createElement('label'), ps0 = document.createElement('select')
     pz.textContent = 'placement'
-    ps0.innerHTML = '<option value="">on the grid</option><option value="ag">anti-grid, anywhere</option><option value="top">pinned to top of screen</option><option value="bottom">pinned to bottom of screen</option>'
+    ps0.innerHTML = (pg().free ? '' : '<option value="">on the grid</option>') + '<option value="ag">anti-grid, anywhere</option><option value="top">pinned to top of screen</option><option value="bottom">pinned to bottom of screen</option>'
     ps0.value = sel.fix || (sel.ag ? 'ag' : '')
     ps0.onchange = function () {
       var v = ps0.value
@@ -2768,14 +2883,19 @@ function pnl() {
   }
   if (sel.ag && !sel.fix) {
     nt('free of the columns and the baseline. it scales with the width of the screen')
+    if (MOB && sel.m && sel.m.fw != null) btn('use the desktop spot on phones', function () {
+      ['fx', 'fy', 'fw', 'fh'].forEach(function (k) { delete sel.m[k] })
+      dirty(); draw(); panel()
+    })
+    else if (MOB) nt('phone: scaled down from desktop. move it here to give it its own phone spot')
     var W0 = cw()
     ;[['x px', 'fx'], ['y px', 'fy'], ['width px', 'fw']].concat(sel.type == 'text' && !sel.fm ? [] : [['height px', 'fh']]).forEach(function (f) {
       var l = document.createElement('label'), i = document.createElement('input')
       l.textContent = f[0]
       i.type = 'number'
-      i.value = Math.round((sel[f[1]] || 0) * W0 / 100)
+      i.value = Math.round((fpos(sel)[f[1]] || 0) * W0 / 100)
       i.onchange = function () {
-        sel[f[1]] = Math.max(f[1] == 'fx' ? -1e5 : f[1] == 'fy' ? 0 : 4, +i.value || 0) / W0 * 100
+        fp(sel)[f[1]] = Math.max(f[1] == 'fx' ? -1e5 : f[1] == 'fy' ? 0 : 4, +i.value || 0) / W0 * 100
         dirty(); draw(); panel()
       }
       l.appendChild(i)

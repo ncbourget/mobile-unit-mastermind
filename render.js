@@ -91,7 +91,7 @@ function plr(p) {
 function plen(el, p, g) {
   var o = ['100vh'], f = 0, n = plr(p)
   if (n && !MOB) o.push(n * g.row + g.pad * 2 + 'px')
-  ;(s.common || []).concat(p.blocks).forEach(function (b) { if (b.ag && !b.fix) f = Math.max(f, (b.fy || 0) + (b.fh || 10)) })
+  ;(s.common || []).concat(p.blocks).forEach(function (b) { if (b.ag && !b.fix && !hid(b)) f = Math.max(f, (fpos(b).fy || 0) + (fpos(b).fh || 10)) })
   if (f) o.push('calc(' + f.toFixed(2) + 'cqw + ' + g.pad + 'px)')
   el.style.minHeight = o.length > 1 ? 'max(' + o.join(', ') + ')' : ''
 }
@@ -179,7 +179,7 @@ function grd(box, g) {
   box.style.padding = g.pad + 'px'
 }
 
-var TXY = 'text nav tabs cards gallery embed marquee lang button events join table group', MPK = ['x', 'y', 'w', 'h', 'hide']
+var TXY = 'text nav tabs cards gallery embed marquee lang button events join table group', MPK = ['x', 'y', 'w', 'h', 'hide', 'fx', 'fy', 'fw', 'fh']
 
 function hid(b) {
   return MOB ? b.on == 'd' || (b.m && b.m.hide) : b.on == 'p'
@@ -242,6 +242,10 @@ function auto(bl, g) {
   ls.forEach(function (it) { AU[it.b.id] = { x: it.x, y: it.py, w: it.w, h: it.h } })
 }
 
+function fpos(b) {
+  return MOB && b.m && b.m.fw != null ? b.m : b
+}
+
 function ps(b) {
   if (!MOB) return b
   if (b.m && b.m.w) return b.m
@@ -265,11 +269,12 @@ function lay(el, b, mm) {
     return
   }
   if (b.ag && !b.fix && !b.wp) {
+    var f = fpos(b), wide = b.type == 'band' && !b.ic
     s.position = 'absolute'
-    s.left = (b.fx || 0) + 'cqw'
-    s.top = (b.fy || 0) + 'cqw'
-    s.width = (b.fw || 10) + 'cqw'
-    s.height = b.type == 'text' && !b.fm ? '' : (b.fh || 10) + 'cqw'
+    s.left = wide ? '0' : (f.fx || 0) + 'cqw'
+    s.top = (f.fy || 0) + 'cqw'
+    s.width = wide ? '100%' : (f.fw || 10) + 'cqw'
+    s.height = b.type == 'text' && !b.fm ? '' : (f.fh || 10) + 'cqw'
     s.right = s.bottom = s.gridColumn = s.gridRow = ''
     s.transform = b.rot ? 'rotate(' + b.rot + 'deg)' : ''
     el.classList.add('ag')
