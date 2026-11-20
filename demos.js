@@ -1,13 +1,4 @@
-var DPH = [
-  'photos/Studios/Riso_Prints/©IaritzaMenjivar-8113.JPG',
-  'photos/Projects/Zine_Night_Workshop/©IaritzaMenjivar-6100.JPG',
-  'photos/Projects/Postering/©IaritzaMenjivar-7594.JPG',
-  'photos/Projects/Wheat_Paste/©IaritzaMenjivar-7623.JPG',
-  'photos/Studios/Final_day/©IaritzaMenjivar-8392.JPG',
-  'photos/Projects/Print_Boxes/©IaritzaMenjivar-6152.JPG',
-  'photos/Projects/Postering_Session_2/©IaritzaMenjivar-9023.JPG',
-  'photos/Studios/Riso_Prints/©IaritzaMenjivar-8147.JPG'
-]
+var DPC = ['#f4c6d8', '#fff45c', '#e8382c', '#0078bf', '#9fd3c7', '#111111', '#ff48b0', '#ffe800']
 
 function dmt(x, y, w, h, html, o) {
   return Object.assign({ type: 'text', x: x, y: y, w: w, h: h, html: html, sty: 'body copy' }, o || {})
@@ -25,7 +16,7 @@ function dmb(x, y, w, h, cols, rows, cells, o) {
   return Object.assign({ type: 'table', x: x, y: y, w: w, h: h, tc: cols, tr: rows, cells: cells, sw: 1, sc: '#111111', lo: true, lh: true, lv: true, cp: 10 }, o || {})
 }
 
-function dmi(n, o) { return Object.assign({ k: 'img', src: DPH[n % DPH.length] }, o || {}) }
+function dmi(n, o) { var x = Object.assign({ html: '', bg: DPC[n % DPC.length] }, o || {}); delete x.ip; return x }
 
 function dtables() {
   var b = []
@@ -33,46 +24,46 @@ function dtables() {
   b.push(dmt(0, 3, 7, 3, 'everything on this page is a table block. click a cell to style it, shift click to pick a range, double click to type in it, and drag the blue lines between columns and rows to resize them.'))
   b.push(dml(0, 7, 12, '01 · a shop front made only of tables'))
   b.push(dmb(0, 8, 2, 31, [1], [1, 1, 1, 1, 1, 1, 4], [
-    [{ html: '<a href="@">shop</a>', bg: '#fff45c' }], [{ html: '<a href="@">workshops</a>' }], [{ html: '<a href="@">studio</a>' }], [{ html: '<a href="@">radio</a>' }],
-    [{ html: '<a href="@">visit us</a>' }], [{ html: '<a href="@">archive</a>' }], [{ html: 'zine fest<br>this saturday', bg: '#e8382c', fg: '#ffffff', size: 22, va: 'bottom' }]
+    [{ html: '<a href="@">shop</a>', bg: '#fff45c' }], [{ html: '<a href="@">events</a>' }], [{ html: '<a href="@">about</a>' }], [{ html: '<a href="@">journal</a>' }],
+    [{ html: '<a href="@">visit us</a>' }], [{ html: '<a href="@">archive</a>' }], [{ html: 'book swap<br>this saturday', bg: '#e8382c', fg: '#ffffff', size: 22, va: 'bottom' }]
   ], { tm: 'fit' }))
-  b.push(dmb(2, 8, 10, 8, [3, 2], [1], [[{ html: 'november<br>print sale', bg: '#f4c6d8', size: 56, wt: '700', va: 'middle', al: 'center' }, dmi(0)]]))
-  b.push(dmb(2, 16, 10, 2, [1, 1, 1, 1, 1], [1], [[{ html: 'prints' }, { html: 'zines' }, { html: 'posters' }, { html: 'stationery' }, { html: 'filter by +', al: 'right' }]], { tm: 'scroll', mw: 520, tva: 'middle' }))
+  b.push(dmb(2, 8, 10, 8, [3, 2], [1], [[{ html: 'winter<br>sale', bg: '#f4c6d8', size: 56, wt: '700', va: 'middle', al: 'center' }, dmi(0)]]))
+  b.push(dmb(2, 16, 10, 2, [1, 1, 1, 1, 1], [1], [[{ html: 'fiction' }, { html: 'poetry' }, { html: 'comics' }, { html: 'kids' }, { html: 'filter by +', al: 'right' }]], { tm: 'scroll', mw: 520, tva: 'middle' }))
   b.push(dmb(2, 18, 10, 21, [1, 1, 1], [5, 1, 5, 1], [
     [dmi(1, { ip: true }), dmi(2, { ip: true }), dmi(3, { ip: true })],
-    [{ html: 'riso poster, 3 colors <span style="float:right">$30</span>' }, { html: 'zine no. 4 <span style="float:right"><s>$12</s> $9</span>', bg: '#fff45c' }, { html: 'tote bag <span style="float:right">$22</span>' }],
+    [{ html: 'used paperback <span style="float:right">$8</span>' }, { html: 'poetry, signed <span style="float:right"><s>$18</s> $14</span>', bg: '#fff45c' }, { html: 'tote bag <span style="float:right">$22</span>' }],
     [dmi(4, { ip: true }), dmi(5, { ip: true }), dmi(6, { ip: true })],
-    [{ html: 'sticker pack <span style="float:right">$6</span>' }, { html: 'linocut print <span style="float:right">$45</span>' }, { html: 'gift card <span style="float:right">$25</span>' }]
+    [{ html: 'sticker pack <span style="float:right">$6</span>' }, { html: 'art print <span style="float:right">$45</span>' }, { html: 'gift card <span style="float:right">$25</span>' }]
   ]))
 
   b.push(dml(0, 41, 12, '02 · a schedule: black header, striped rows, dashed lines'))
   var hd = { bg: '#111111', fg: '#ffffff', size: 13, sw: 2, ds: 'solid' }, z = { bg: '#fff45c' }
   b.push(dmb(0, 42, 12, 16, [1, 3, 1.2, 1.6], [1, 1, 1, 1, 1, 1, 1], [
     [Object.assign({ html: 'date' }, hd), Object.assign({ html: 'what' }, hd), Object.assign({ html: 'time' }, hd), Object.assign({ html: 'where' }, hd)],
-    [{ html: 'thu 20' }, { html: 'open studio · taller abierto' }, { html: '6–9 pm' }, { html: 'main room' }],
-    [Object.assign({ html: 'sat 22' }, z), Object.assign({ html: 'riso 101 workshop' }, z), Object.assign({ html: '1–4 pm' }, z), Object.assign({ html: 'riso corner' }, z)],
-    [{ html: 'sun 23' }, { html: 'zine night' }, { html: '5–8 pm' }, { html: 'main room' }],
+    [{ html: 'thu 20' }, { html: 'reading night' }, { html: '6–9 pm' }, { html: 'main room' }],
+    [Object.assign({ html: 'sat 22' }, z), Object.assign({ html: 'kids story hour' }, z), Object.assign({ html: '10–11 am' }, z), Object.assign({ html: 'back room' }, z)],
+    [{ html: 'sun 23' }, { html: 'poetry open mic' }, { html: '5–8 pm' }, { html: 'main room' }],
     [Object.assign({ html: 'thu 27' }, z), Object.assign({ html: 'closed for the holiday' }, z), Object.assign({ html: '—' }, z), Object.assign({ html: '—' }, z)],
-    [{ html: 'sat 29' }, { html: 'holiday print market' }, { html: 'all day' }, { html: 'the whole studio' }],
-    [Object.assign({ html: 'sun 30' }, z), Object.assign({ html: 'screen printing: tote bags' }, z), Object.assign({ html: '12–3 pm' }, z), Object.assign({ html: 'screen room' }, z)]
+    [{ html: 'sat 29' }, { html: 'winter book fair' }, { html: 'all day' }, { html: 'the whole shop' }],
+    [Object.assign({ html: 'sun 30' }, z), Object.assign({ html: 'zine making' }, z), Object.assign({ html: '12–3 pm' }, z), Object.assign({ html: 'front window' }, z)]
   ], { ds: 'dashed', dl: 6, dg: 4, tva: 'middle' }))
 
   b.push(dml(0, 60, 8, '03 · space between cells, merged cells, lines per cell'))
   b.push(dmb(0, 61, 8, 22, [1, 1, 1, 1], [1, 1, 1, 1], [
-    [dmi(7, { cs: 2, rs: 2 }), {}, { html: 'the press,<br>room by room', cs: 2, bg: '#e8382c', fg: '#ffffff', size: 30, wt: '700', va: 'bottom' }, {}],
-    [{}, {}, { html: 'riso', bg: '#fff45c', va: 'bottom' }, { html: 'dotted', sw: 3, sc: '#e8382c', ds: 'dotted', va: 'bottom' }],
-    [{ html: 'screen', va: 'bottom' }, { html: 'thick', sw: 5, va: 'bottom' }, dmi(2, { cs: 2, rs: 2 }), {}],
-    [{ html: 'no left, no bottom', hs: 'lb', va: 'bottom' }, { html: 'letterpress', bg: '#f4c6d8', va: 'bottom' }, {}, {}]
+    [dmi(7, { cs: 2, rs: 2 }), {}, { html: 'the shop,<br>room by room', cs: 2, bg: '#e8382c', fg: '#ffffff', size: 30, wt: '700', va: 'bottom' }, {}],
+    [{}, {}, { html: 'fiction', bg: '#fff45c', va: 'bottom' }, { html: 'dotted', sw: 3, sc: '#e8382c', ds: 'dotted', va: 'bottom' }],
+    [{ html: 'poetry', va: 'bottom' }, { html: 'thick', sw: 5, va: 'bottom' }, dmi(2, { cs: 2, rs: 2 }), {}],
+    [{ html: 'no left, no bottom', hs: 'lb', va: 'bottom' }, { html: 'comics', bg: '#f4c6d8', va: 'bottom' }, {}, {}]
   ], { tg: 8, sw: 1.5 }))
   b.push(dml(8, 60, 4, '04 · a price list: lines between rows only'))
   b.push(dmb(8, 61, 4, 14, [3, 1], [1, 1, 1, 1, 1, 1], [
-    [{ html: 'poster, 11 × 17' }, { html: '$30', al: 'right' }], [{ html: 'poster, 18 × 24' }, { html: '$45', al: 'right' }], [{ html: 'zine, 16 pages' }, { html: '$12', al: 'right' }],
-    [{ html: 'studio day pass' }, { html: '$20', al: 'right' }], [{ html: 'monthly membership' }, { html: '$60', al: 'right' }], [{ html: 'riso, per 100 prints' }, { html: '$15', al: 'right' }]
+    [{ html: 'paperback, used' }, { html: '$8', al: 'right' }], [{ html: 'hardcover, new' }, { html: '$28', al: 'right' }], [{ html: 'zine' }, { html: '$6', al: 'right' }],
+    [{ html: 'gift wrap' }, { html: '$3', al: 'right' }], [{ html: 'membership, yearly' }, { html: '$40', al: 'right' }], [{ html: 'special order' }, { html: '$5', al: 'right' }]
   ], { lo: false, lv: false, cp: 6, tva: 'middle' }))
   b.push(dml(8, 76, 4, '05 · a ticket, turned a little'))
   b.push(dmb(8, 77, 4, 6, [2, 1], [1, 1], [
     [{ html: 'admit one', size: 22, wt: '700', bg: '#fff45c' }, { html: 'no. 0042', al: 'right', size: 13 }],
-    [{ html: 'holiday print market', size: 13 }, { html: 'sat 29', al: 'right', size: 13 }]
+    [{ html: 'winter book fair', size: 13 }, { html: 'sat 29', al: 'right', size: 13 }]
   ], { rot: -4, sw: 2 }))
 
   b.push(dml(0, 85, 12, '06 · on phones: stack (left), shrink to fit (middle), scroll sideways (right)'))
@@ -114,13 +105,13 @@ function dshapes() {
     [{ ds: 'dotted', sw: 7, dg: 6 }, 'dotted'],
     [{ ds: 'dashed', sw: 5, dn: 12 }, '12 spread evenly'],
     [{ sh: 'ellipse', ds: 'dotted', sw: 9, dn: 16 }, '16 dots around'],
-    [{ ds: 'img', sw: 30, di: DPH[1], iu: true }, 'image dashes']
+    [{ ds: 'dashed', sw: 10, dl: 4, dg: 4 }, 'short and thick']
   ].forEach(function (k, i) {
     b.push(dms(i * 2, 39, 2, 6, Object.assign({ fill: 'none', sc: '#111111' }, k[0])))
     b.push(dml(i * 2, 46, 2, k[1]))
   })
 
-  b.push(dml(0, 49, 6, '04 · overprint: three see-through circles, like riso inks'))
+  b.push(dml(0, 49, 6, '04 · overprint: three see-through circles, like layered inks'))
   b.push(dms(0, 50, 3, 9, { sh: 'ellipse', fill: '#ff48b0', op: 75 }))
   b.push(dms(2, 50, 3, 9, { sh: 'ellipse', fill: '#ffe800', op: 75 }))
   b.push(dms(1, 55, 3, 9, { sh: 'ellipse', fill: '#0078bf', op: 75 }))
@@ -131,14 +122,14 @@ function dshapes() {
 
   b.push(dml(0, 66, 12, '06 · shapes behind type'))
   for (var i = 0; i < 6; i++) b.push(dms(i * 2, 67, 2, 6, { sh: 'ellipse', fill: i % 2 ? '#fff45c' : '#e8382c' }))
-  b.push(dmt(0, 68, 12, 3, 'workshop week', { sty: 'H1', al: 'center', z: 5 }))
+  b.push(dmt(0, 68, 12, 3, 'open house', { sty: 'H1', al: 'center', z: 5 }))
   return { title: 'shapes demo', slug: 'demo-shapes', blocks: b }
 }
 
 function dtype() {
-  var b = [], y, st = s.styles || {}
+  var b = [], y, st = s.styles || {}, own = (FF[0] && FF[0][0] == 'this site' ? FF[0][1] : []), fams = own.length ? own.slice(0, 4) : [['Helvetica', 'Helvetica, Arial, sans-serif', [300, 400, 700]], ['Georgia', 'Georgia, serif'], ['Futura', 'Futura, "Century Gothic", sans-serif'], ['Courier', '"Courier New", Courier, monospace']], f0 = fams[0]
   b.push(dmt(0, 0, 9, 3, 'type specimen', { sty: 'H1' }))
-  b.push(dmt(9, 0, 3, 9, 'ñ', { font: '"Degular Display", Helvetica, Arial, sans-serif', size: 190, wt: '400', lh: 1, al: 'right', fm: 'lock' }))
+  b.push(dmt(9, 0, 3, 9, 'Aa', { font: f0[1], size: 160, wt: '400', lh: 1, al: 'right', fm: 'lock' }))
   b.push(dmt(0, 3, 7, 3, 'every text style on the site, sizes, weights, families and the fine print: optical margins, hyphenation, tracking, small caps, figures and ligatures.'))
 
   b.push(dml(0, 10, 12, '01 · the site styles'))
@@ -146,7 +137,7 @@ function dtype() {
   Object.keys(st).forEach(function (n) {
     var o = st[n], h = Math.max(2, Math.ceil((o.size || 18) * 1.4 / 24) + 1)
     b.push(dml(0, y, 3, n + ' · ' + (o.size || 18) + ' px · ' + (o.wt || '400')))
-    b.push(dmt(3, y, 9, h, n == 'caption' ? 'caption text for photo credits and small notes' : (o.size || 18) >= 40 ? 'Imprenta comunitaria' : 'Imprenta comunitaria en East Boston', { sty: n }))
+    b.push(dmt(3, y, 9, h, n == 'caption' ? 'caption text for photo credits and small notes' : (o.size || 18) >= 40 ? 'A neighborhood bookshop' : 'A neighborhood bookshop, open every day but Monday', { sty: n }))
     y += h + 1
   })
 
@@ -155,27 +146,27 @@ function dtype() {
   ;[12, 16, 24, 36, 56, 88].forEach(function (z) {
     var h = Math.max(1, Math.ceil(z * 1.25 / 24))
     b.push(dml(0, y, 1, z + ''))
-    b.push(dmt(1, y, 11, h, 'ñ press imprime aquí', { size: z, lh: 1.15 }))
+    b.push(dmt(1, y, 11, h, 'the quick brown fox jumps', { size: z, lh: 1.15 }))
     y += h
   })
 
   y++
-  b.push(dml(0, y, 12, '03 · weights of Degular'))
+  b.push(dml(0, y, 12, '03 · weights of ' + f0[0]))
   y++
-  ;[[100, 'thin'], [300, 'light'], [400, 'regular'], [500, 'medium'], [600, 'semibold'], [700, 'bold'], [900, 'black']].forEach(function (w, i) {
-    b.push(dmt((i % 4) * 3, y + Math.floor(i / 4) * 3, 3, 3, 'Ññ ' + w[1], { size: 34, wt: String(w[0]), lh: 1.1 }))
+  ;[[100, 'thin'], [300, 'light'], [400, 'regular'], [500, 'medium'], [600, 'semibold'], [700, 'bold'], [900, 'black']].filter(function (w) { return !f0[2] || f0[2].indexOf(w[0]) > -1 }).forEach(function (w, i) {
+    b.push(dmt((i % 4) * 3, y + Math.floor(i / 4) * 3, 3, 3, 'Aa ' + w[1], { font: f0[1], size: 34, wt: String(w[0]), lh: 1.1 }))
   })
   y += 7
 
   b.push(dml(0, y, 12, '04 · families'))
   y++
-  ;[['Degular', '"Degular", Helvetica, Arial, sans-serif'], ['Degular Display', '"Degular Display", Helvetica, Arial, sans-serif'], ['Degular Mono', '"Degular Mono", Menlo, monospace'], ['Sofia Pro', '"Sofia Pro", Helvetica, Arial, sans-serif']].forEach(function (f, i) {
+  fams.forEach(function (f, i) {
     b.push(dml(i * 3, y, 3, f[0]))
-    b.push(dmt(i * 3, y + 1, 3, 4, 'Aa Ññ 0123', { font: f[1], size: 40, lh: 1.1 }))
+    b.push(dmt(i * 3, y + 1, 3, 4, 'Aa Bb 0123', { font: f[1], size: 40, lh: 1.1 }))
   })
   y += 6
 
-  var q = '“Print is how a neighborhood talks to itself,” said one member. Very often the work starts on a Thursday, with tea, paper and a deadline. “Yes” is the answer.'
+  var q = '“A good shop is how a street talks to itself,” said one regular. Very often the day starts on a Thursday, with tea, paper and a deadline. “Yes” is the answer.'
   b.push(dml(0, y, 12, '05 · optical margins: off (left) and on (right)'))
   y++
   b.push(dmt(0, y, 5, 9, q, { size: 24, lh: 1.25, bg: '#ffffff' }))
@@ -210,7 +201,7 @@ function dtype() {
   b.push(dmt(4, y + 1, 4, 4, 'white on red', { size: 30, bg: '#e8382c', fg: '#ffffff', pd: 14, fm: 'lock', va: 'bottom' }))
   b.push(dmt(8, y + 1, 4, 4, 'pink on black', { size: 30, bg: '#111111', fg: '#f4c6d8', pd: 14, fm: 'lock', va: 'bottom' }))
   y += 6
-  b.push({ type: 'marquee', x: 0, y: y, w: 12, h: 4, html: 'ñ press · type specimen · imprenta comunitaria · ', speed: 30, size: 56, wt: '700' })
+  b.push({ type: 'marquee', x: 0, y: y, w: 12, h: 4, html: 'type specimen · sizes · weights · families · ', speed: 30, size: 56, wt: '700' })
   return { title: 'type specimen', slug: 'demo-type', blocks: b }
 }
 

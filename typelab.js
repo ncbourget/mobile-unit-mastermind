@@ -1,4 +1,4 @@
-var LB = null, LG = 'ñ', LM = 4, LK = false, LD = {}
+var LB = null, LG = 'a', LM = 4, LK = false, LD = {}
 
 var PAN = '“El veloz murciélago hindú comía feliz cardillo y kiwi.” La cigüeña tocaba el saxofón detrás del palenque de paja. Sphinx of black quartz, judge my vow; the five boxing wizards jump quickly at 1,234 presses.'
 
@@ -19,7 +19,7 @@ function lab(n) {
     w = document.createElement('div')
     w.id = 'lab'
     w.hidden = true
-    w.innerHTML = '<div class="lbw"><header><b>ñ type lab</b><span></span><em class="lst"></em><button class="lrs" title="undo everything since you opened the lab or last kept">revert</button><button class="lsv" title="keep these changes in the editor. the editor save button still saves the site">keep</button><button class="lcl">close</button></header><div class="lask" hidden><span>you changed type styles and did not keep them</span><button class="lno">throw them away</button><button class="lok">keep and close</button><button class="lbk">keep editing</button></div><aside class="ll"></aside><main class="lc"></main><aside class="li"></aside></div>'
+    w.innerHTML = '<div class="lbw"><header><b>type lab</b><span></span><em class="lst"></em><button class="lrs" title="undo everything since you opened the lab or last kept">revert</button><button class="lsv" title="keep these changes in the editor. the editor save button still saves the site">keep</button><button class="lcl">close</button></header><div class="lask" hidden><span>you changed type styles and did not keep them</span><button class="lno">throw them away</button><button class="lok">keep and close</button><button class="lbk">keep editing</button></div><aside class="ll"></aside><main class="lc"></main><aside class="li"></aside></div>'
     w.querySelector('.lcl').onclick = lclose
     w.querySelector('.lsv').onclick = lsave
     w.querySelector('.lrs').onclick = lreset
@@ -342,7 +342,7 @@ function lspec(p, o) {
   var s2 = sec(p, '02', 'sizes')
   var sm = e.z > 24 ? 14 : 11, lg = e.z >= 72 ? 144 : 96
   ;[[sm, 'reading'], [e.z, 'set'], [lg, 'display']].sort(function (a, b) { return a[0] - b[0] }).forEach(function (x) {
-    var r = el('div', 'lsz' + (x[1] == 'set' ? ' set' : '')), t = smp(x[0] >= 60 ? 'Prensa ñ, tinta & papel' : 'Sphinx of black quartz, judge my vow. Taller ñ press')
+    var r = el('div', 'lsz' + (x[1] == 'set' ? ' set' : '')), t = smp(x[0] >= 60 ? 'Ink, paper & type' : 'Sphinx of black quartz, judge my vow. Taller ñ press')
     t.style.fontSize = x[0] + 'px'
     t.style.lineHeight = '1.25'
     r.innerHTML = '<label><b>' + x[0] + '</b>' + x[1] + '</label>'
@@ -752,7 +752,7 @@ function gsec(p, o) {
     var by = {}
     cs.u.forEach(function (c) { (by[blk(c)] = by[blk(c)] || []).push(c) })
     var es = [].map.call('ÑñÁáÉéÍíÓóÚúÜü¿¡«»“”‘’—–€$', function (x) { return x.codePointAt(0) }).filter(function (c) { return cs.u.indexOf(c) > -1 })
-    sel0.innerHTML = '<option value="">entire font (' + cs.u.length + ')</option><option value="es">ñ press set (' + es.length + ')</option>'
+    sel0.innerHTML = '<option value="">entire font (' + cs.u.length + ')</option><option value="es">Spanish set (' + es.length + ')</option>'
     BK.concat([[0, 0, 'other']]).forEach(function (b) {
       if (by[b[2]]) sel0.innerHTML += '<option value="' + b[2] + '">' + b[2] + ' (' + by[b[2]].length + ')</option>'
     })

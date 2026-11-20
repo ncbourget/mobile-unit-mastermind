@@ -35,7 +35,7 @@ function load() {
         live().then(function (j) {
           s = j
           mig(s)
-          LS = s.langs || ['es']
+          LS = s.langs || ['en']
           if (LP0 && LP0.lang && LS.indexOf(LP0.lang) > -1) L = LP0.lang
           if (LP0) CUR = LP0.page || ''
           go()
@@ -73,7 +73,7 @@ if (MM || LV) document.addEventListener('click', function (e) {
 load().then(function (j) {
   s = j
   mig(s)
-  LS = s.langs || ['es']
+  LS = s.langs || ['en']
   L = localStorage.getItem('lng')
   if (LS.indexOf(L) < 0) L = LS[0]
   CUR = MM ? new URLSearchParams(location.search).get('p') || '' : document.body.dataset.p != null ? document.body.dataset.p : new URLSearchParams(location.search).get('p') || ''
@@ -290,7 +290,7 @@ if (MM) {
     dft().then(function (j) {
       s = j
       mig(s)
-      LS = s.langs || ['es']
+      LS = s.langs || ['en']
       go()
     })
   })
