@@ -1021,9 +1021,20 @@ img.c-image {
   height: 100%;
 }
 
-.b.t-image:has(.cz) {
+.b.t-image:has(.cz), .b.t-image:has(.cf) {
   container-type: size;
   overflow: hidden;
+}
+
+img.c-image.cf {
+  position: absolute;
+  max-width: none;
+  left: calc((var(--ix) - var(--iw) / 2) * 1cqw);
+  top: calc((var(--iy) - var(--ih) / 2) * 1cqh);
+  width: calc(var(--iw) * 1cqw);
+  height: calc(var(--ih) * 1cqh);
+  object-fit: fill;
+  transform: rotate(calc(var(--ir) * 1deg));
 }
 
 img.c-image.cz {

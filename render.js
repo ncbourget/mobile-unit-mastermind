@@ -1083,7 +1083,11 @@ function bk(b, mm) {
     el = document.createElement(t == 'image' ? 'img' : 'video')
     el.src = rp(b.src)
     fit(el, b)
-    if (t == 'image' && !b.fit && b.ar && (b.cx != null || b.cy != null || b.cz)) {
+    if (t == 'image' && !b.fit && b.iw != null) {
+      el.classList.add('cf')
+      el.style.objectPosition = ''
+      ;['ix', 'iy', 'iw', 'ih', 'ir'].forEach(function (k) { el.style.setProperty('--' + k, b[k] || 0) })
+    } else if (t == 'image' && !b.fit && b.ar && (b.cx != null || b.cy != null || b.cz)) {
       el.classList.add('cz')
       el.style.objectPosition = ''
       el.style.setProperty('--ar', b.ar)
