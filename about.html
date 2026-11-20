@@ -200,11 +200,13 @@ pre {
 <li><a href="#saving">saving and overwriting</a></li>
 <li><a href="#freeform">grid or freeform</a></li>
 <li><a href="#coded">sites you coded yourself</a></li>
+<li><a href="#calendar">calendar</a></li>
 <li><a href="#phone">phone preview</a></li>
 <li><a href="#codespace">Codespaces</a></li>
 <li><a href="#inside">inside your site</a></li>
 <li><a href="#private">private on Cloudflare</a></li>
 <li><a href="#limits">other limits</a></li>
+<li><a href="#license">license</a></li>
 </ul>
 </nav>
 <main>
@@ -312,6 +314,29 @@ pre {
 </ul>
 </section>
 
+<section id="calendar">
+<h2>calendar</h2>
+<p>the events block shows upcoming events as a list or a month. under <b>events come from</b>, pick one:</p>
+<ul>
+<li><b>written here:</b> add each event in the panel with a title, a date like <code>2026-12-05</code>, and times like <code>18:00</code>. leave the start time empty for an all-day event. times show exactly as you type them.</li>
+<li><b>Google Calendar:</b> the page reads your calendar every time someone opens it, so anything you add in Google Calendar shows up on the site, with no saving or pushing.</li>
+</ul>
+<h3>connecting Google Calendar</h3>
+<p>it works with no server, but the calendar has to be public, and you need two things from Google:</p>
+<ol>
+<li><b>make the calendar public.</b> in Google Calendar, open the calendar's settings, and under access permissions, tick <b>make available to public</b>. everyone can then see its events, so use a calendar that's only for the site.</li>
+<li><b>copy the calendar ID.</b> in the same settings, under <b>integrate calendar</b>. it looks like <code>abc123@group.calendar.google.com</code>.</li>
+<li><b>make an API key.</b> on <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud console</a>, make a project, turn on the <b>Google Calendar API</b>, then go to <b>credentials → create credentials → API key</b>. it's free for a site's worth of visits.</li>
+<li><b>lock the key down.</b> edit the key: under application restrictions pick <b>websites</b> and add your site's address, like <code>yoursite.com/*</code>, and under API restrictions pick only the Google Calendar API.</li>
+<li>paste the calendar ID and the key into the events block's settings. the panel says how many events it found.</li>
+</ol>
+<ul>
+<li>the key sits in your page where anyone can see it. that's how Google expects this kind of key to be used, which is why step 4 matters: locked to your site and the Calendar API, it's no use to anyone else.</li>
+<li>times show in the calendar's own time zone, set in Google Calendar.</li>
+<li>it shows events from the last 90 days onward, up to 250 of them.</li>
+</ul>
+</section>
+
 <section id="phone">
 <h2>phone preview</h2>
 <p>see your site on a real phone while you design it. the phone shows the page you're on and updates every time you change something, before you save.</p>
@@ -394,7 +419,7 @@ pre {
 <section id="limits">
 <h2>other limits</h2>
 <ul>
-<li>the calendar and mailing list blocks are hidden for now. they need a server to work, and Mastermind doesn't run one.</li>
+<li>the mailing list block is hidden for now. it needs a server to collect sign-ups, and Mastermind doesn't run one.</li>
 <li>photos are shrunk to 2400 pixels on the longest side when you add them.</li>
 <li>on GitHub, new photos wait in this browser until you save. close the tab first and they're gone.</li>
 <li>very large repos (tens of thousands of files) are too big to open from the browser.</li>
@@ -402,6 +427,17 @@ pre {
 <li>screens narrower than 700 pixels get the phone layout. change it in the dev tab.</li>
 <li>if your site lives in a folder of its address, like a GitHub Pages project site at <code>username.github.io/repo-name/</code>, set <b>site lives at</b> in the dev tab to <code>/repo-name/</code>.</li>
 <li>preview needs browser storage. if your browser blocks it, preview won't open.</li>
+</ul>
+</section>
+
+<section id="license">
+<h2>license</h2>
+<p>Mastermind is © 2026 Nate C. Bourget, under the <a href="https://github.com/ncbourget/mobile-unit-mastermind/blob/main/LICENSE.md" target="_blank" rel="noopener">PolyForm Noncommercial license</a>.</p>
+<ul>
+<li><b>free</b> for personal and non-commercial sites: your own site, a friend's portfolio, a school, a club, a charity. you can install it in your site and change it for yourself.</li>
+<li><b>not free</b> for business use, or to sell, rebrand or build a product from. ask first.</li>
+<li>the pages you make with Mastermind are yours. the license covers Mastermind's own code, including <code>render.js</code>, <code>site.js</code> and <code>page.css</code>, which saving copies into your site.</li>
+<li>keep the copyright notice at the top of <code>LICENSE.md</code> if you pass Mastermind on.</li>
 </ul>
 </section>
 
