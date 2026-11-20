@@ -102,6 +102,36 @@ function go() {
   box.querySelectorAll('.sl[data-auto]').forEach(function (el) {
     if (+el.dataset.auto) tk.push(setInterval(function () { slide(el, 1) }, el.dataset.auto * 1000))
   })
+  addx()
+  document.dispatchEvent(new Event('mastermind-drawn'))
+}
+
+var XD = false
+
+function addx() {
+  if (XD) return
+  XD = true
+  var a = extras(s, PP), js = a.filter(function (x) { return /\.js$/i.test(x) })
+  a.filter(function (x) { return /\.css$/i.test(x) }).forEach(function (h) {
+    var u = RT + h
+    if ([].some.call(document.querySelectorAll('link[rel=stylesheet]'), function (l) { return l.getAttribute('href') == u })) return
+    var l = document.createElement('link')
+    l.rel = 'stylesheet'
+    l.href = u
+    document.head.appendChild(l)
+  })
+  ;(function next(i) {
+    if (i < js.length) {
+      var sc = document.createElement('script')
+      sc.src = RT + js[i]
+      sc.onload = sc.onerror = function () { next(i + 1) }
+      document.body.appendChild(sc)
+      return
+    }
+    if (!js.length) return
+    document.dispatchEvent(new Event('DOMContentLoaded'))
+    if (document.readyState == 'complete') window.dispatchEvent(new Event('load'))
+  })(0)
 }
 
 var tk = [], lb, lg = [], li = 0

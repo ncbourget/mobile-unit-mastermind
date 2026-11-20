@@ -57,6 +57,11 @@ function mig(s) {
   g.v = 2
 }
 
+function extras(s, p) {
+  var a = (s.extra || []).concat((p && p.extra) || [])
+  return a.filter(function (x, i) { return x && a.indexOf(x) == i })
+}
+
 function pgd(s, p) {
   var g = Object.assign({}, s.grid), o = (p && p.g) || {}
   for (var k in o) if (o[k] != null && o[k] !== '') g[k] = o[k]

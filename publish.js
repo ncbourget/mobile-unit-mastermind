@@ -36,6 +36,7 @@ function html(p, slug, rt) {
     '<title>' + esc(tx(p.title) || 'untitled') + '</title>\n' +
     '<link rel="icon" href="' + rt + esc(s.icon || 'assets/favicon.svg') + '">\n' +
     '<link rel="stylesheet" href="' + rt + 'page.css">\n' +
+    extras(s, p).filter(function (x) { return /\.css$/i.test(x) }).map(function (x) { return '<link rel="stylesheet" href="' + rt + esc(x) + '">\n' }).join('') +
     '</head>\n<body data-rt="' + rt + '" data-p="' + esc(slug) + '"' + (bs ? ' style="' + esc(bs) + '"' : '') + '>\n' +
     box.outerHTML + '\n' +
     '<script src="' + rt + 'render.js"></script>\n<script src="' + rt + 'site.js"></script>\n</body>\n</html>\n'
