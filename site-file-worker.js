@@ -13,7 +13,7 @@ self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim(
 
 self.addEventListener('fetch', function (e) {
   var u = new URL(e.request.url)
-  if (e.request.method != 'GET' || u.origin != SITE.origin || u.pathname.indexOf(SITE.pathname) != 0) return
+  if (!/^(GET|HEAD)$/.test(e.request.method) || u.origin != SITE.origin || u.pathname.indexOf(SITE.pathname) != 0) return
   e.respondWith(serve(u, e.clientId))
 })
 

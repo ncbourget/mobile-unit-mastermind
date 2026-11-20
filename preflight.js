@@ -95,7 +95,7 @@ function nm0(b) {
 
 function pscan(net) {
   var out = [], seen = {}, sl = s.pages.map(function (p) { return p.slug || '' })
-  function add(lv, m, pi, b) { out.push({ lv: lv, m: m, pi: pi, id: b && b.id }) }
+  function add(lv, m, pi, b, u) { out.push({ lv: lv, m: m, pi: pi, id: b && b.id, u: u }) }
   PF.log.forEach(function (x) {
     if (!x.ok) add('err', x.m + ' (' + new Date(x.at).toLocaleTimeString() + ')')
   })
@@ -126,7 +126,7 @@ function pscan(net) {
       srcs(b).forEach(function (u) {
         if (PV[u]) return
         var r = PF.net[u]
-        if (r === 0) add('err', 'missing file ' + u + ': ' + nm0(b), pi, b)
+        if (r === 0) add('err', 'missing file ' + u + ': ' + nm0(b), pi, b, u)
         else if (r > 3e6) add('warn', 'large file, slow to load (' + (r / 1e6).toFixed(1) + ' MB): ' + u.split('/').pop(), pi, b)
       })
     })
@@ -145,6 +145,7 @@ function pscan(net) {
     if (s.icon) all.push(s.icon)
     all = all.filter(function (u, j) { return all.indexOf(u) == j && !PV[u] && PF.net[u] == null })
     if (all.length) Promise.all(all.map(function (u) {
+      if (STORE && !/^([a-z]+:|\/)/i.test(u)) return STORE.readFile(u).then(function (f) { PF.net[u] = f ? f.size || 1 : 0 }, function () { PF.net[u] = 0 })
       return fetch(rp(u), { method: 'HEAD', cache: 'no-store' }).then(function (r) {
         PF.net[u] = r.ok ? +(r.headers.get('content-length') || 1) : 0
       }).catch(function () { PF.net[u] = 0 })
@@ -187,10 +188,42 @@ function prender(ls) {
         var el = sel && elof(sel)
         if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
       }
+      if (x.u) {
+        var rl = document.createElement('button')
+        rl.className = 'prl'
+        rl.textContent = 'relink'
+        rl.title = 'pick another photo for every place that uses ' + x.u
+        rl.onclick = function (e) {
+          e.preventDefault()
+          e.stopPropagation()
+          lib(function (np) { prelink(x.u, np) })
+        }
+        r.appendChild(rl)
+      }
       bx.appendChild(r)
     })
   })
   if (!ls.length) bx.innerHTML = '<p class="pok">everything checks out</p>'
+}
+
+function prelink(a, b) {
+  var n = 0
+  function walk(o) {
+    for (var k in o) {
+      var v = o[k]
+      if (v && typeof v == 'object') walk(v)
+      else if (v === a) { o[k] = b; n++ }
+      else if (typeof v == 'string' && v.indexOf('"' + a + '"') > -1) { o[k] = v.split('"' + a + '"').join('"' + b + '"'); n++ }
+    }
+  }
+  walk(s)
+  delete PF.net[a]
+  lw.hidden = true
+  dirty()
+  draw()
+  panel()
+  pdeb(1)
+  st.textContent = 'relinked ' + n + (n == 1 ? ' place' : ' places') + ' from ' + a.split('/').pop() + ' to ' + b.split('/').pop()
 }
 
 function pdeb(now) {

@@ -64,7 +64,7 @@ function lrend() {
   here.forEach(function (p) {
     var a = document.createElement('a'), m = document.createElement(VD.test(p) ? 'video' : 'img')
     a.title = p.split('/').pop()
-    m.src = PV[p] || p
+    m.src = PV[p] || rp(p)
     if (m.tagName == 'IMG') {
       m.loading = 'lazy'
       m.decoding = 'async'
