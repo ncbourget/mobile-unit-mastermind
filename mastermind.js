@@ -2060,6 +2060,7 @@ function fpk(t, o) {
 function fld(t, o, k, kd, lo) {
   if (k == 'font') return fpk(t, o)
   var l = document.createElement('label'), tr = kd == 't' || kd == 'ta', i
+  l.dataset.k = k
   if (kd == 's') {
     i = document.createElement('select')
     lo.forEach(function (v) {

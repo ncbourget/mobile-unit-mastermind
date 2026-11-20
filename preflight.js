@@ -95,7 +95,7 @@ function nm0(b) {
 
 function pscan(net) {
   var out = [], seen = {}, sl = s.pages.map(function (p) { return p.slug || '' })
-  function add(lv, m, pi, b, u) { out.push({ lv: lv, m: m, pi: pi, id: b && b.id, u: u }) }
+  function add(lv, m, pi, b, u, k, lg) { out.push({ lv: lv, m: m, pi: pi, id: b && b.id, u: u, k: k, lg: lg }) }
   PF.log.forEach(function (x) {
     if (!x.ok) add('err', x.m + ' (' + new Date(x.at).toLocaleTimeString() + ')')
   })
@@ -106,13 +106,13 @@ function pscan(net) {
     bl.forEach(function (b) {
       var pi = i
       hrefs(b).forEach(function (h) {
-        if (h.charAt(0) == '@' && sl.indexOf(h.slice(1)) < 0) add('err', 'links to a page that does not exist (' + h + '): ' + nm0(b), pi, b)
-        else if (!h || h == '#') add('warn', 'link goes nowhere yet (#): ' + nm0(b), pi, b)
+        if (h.charAt(0) == '@' && sl.indexOf(h.slice(1)) < 0) add('err', 'links to a page that does not exist (' + h + '): ' + nm0(b), pi, b, null, 'href')
+        else if (!h || h == '#') add('warn', 'link goes nowhere yet (#): ' + nm0(b), pi, b, null, 'href')
       })
-      if ((b.type == 'image' || b.type == 'video') && !b.src) add('warn', 'empty ' + b.type + ' block, nothing will show', pi, b)
-      if (b.type == 'image' && b.src && !tx(b.alt)) add('warn', 'image has no alt text for screen readers: ' + nm0(b), pi, b)
+      if ((b.type == 'image' || b.type == 'video') && !b.src) add('warn', 'empty ' + b.type + ' block, nothing will show', pi, b, null, 'src')
+      if (b.type == 'image' && b.src && !tx(b.alt)) add('warn', 'image has no alt text for screen readers: ' + nm0(b), pi, b, null, 'alt')
       if (b.type == 'gallery' && !(b.items || []).length) add('warn', 'empty gallery, nothing will show', pi, b)
-      if (b.type == 'text' && !String(tx(b.html) || '').replace(/<[^>]+>/g, '').trim()) add('warn', 'empty text box', pi, b)
+      if (b.type == 'text' && !String(tx(b.html) || '').replace(/<[^>]+>/g, '').trim()) add('warn', 'empty text box', pi, b, null, 'html')
       ;(b.ly || []).forEach(function (L) { if (L.k != 'grad' && !L.src) add('warn', 'band has an image layer with no image', pi, b) })
       if (!b.fix && b.type != 'band' && b.x + b.w > c) add('warn', nm0(b) + ' runs past the ' + c + ' columns on ' + pt, pi, b)
       var ls = []
@@ -121,7 +121,7 @@ function pscan(net) {
         var k = x[0] + x[1] + b.id
         if (seen[k]) return
         seen[k] = 1
-        add('warn', 'no ' + x[1] + ' version of ' + (x[0] == 'html' ? 'the text' : x[0]) + ': ' + nm0(b), pi, b)
+        add('warn', 'no ' + x[1] + ' version of ' + (x[0] == 'html' ? 'the text' : x[0]) + ': ' + nm0(b), pi, b, null, x[0], x[1])
       })
       srcs(b).forEach(function (u) {
         if (PV[u]) return
@@ -130,9 +130,9 @@ function pscan(net) {
         else if (r > 3e6) add('warn', 'large file, slow to load (' + (r / 1e6).toFixed(1) + ' MB): ' + u.split('/').pop(), pi, b)
       })
     })
-    if (!tx(p.title)) add('warn', 'page /' + (p.slug || '') + ' has no title', i)
+    if (!tx(p.title)) add('warn', 'page /' + (p.slug || '') + ' has no title', i, null, null, 'title')
     else if (LS.length > 1 && typeof p.title == 'object') LS.forEach(function (l) {
-      if (!String(p.title[l] || '').trim()) add('warn', 'page ' + pt + ' has no ' + l + ' title', i)
+      if (!String(p.title[l] || '').trim()) add('warn', 'page ' + pt + ' has no ' + l + ' title', i, null, null, 'title', l)
     })
   })
   if (dirt) add('info', 'you have unsaved changes')
@@ -180,13 +180,25 @@ function prender(ls) {
       if (x.pi != null) r.onclick = function () {
         pi = x.pi
         CUR = pg().slug || ''
+        if (x.lg && LS.indexOf(x.lg) > -1 && L != x.lg) {
+          L = x.lg
+          document.getElementById('lg').value = L
+        }
+        if (x.k == 'title' && !x.id) PT = 'page'
         sel = x.id ? all().filter(function (b) { return b.id == x.id })[0] || null : null
         SS = sel ? [sel] : []
         tbr()
         draw()
         panel()
         var el = sel && elof(sel)
-        if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        if (el) {
+          el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          el.classList.remove('pfhl')
+          void el.offsetWidth
+          el.classList.add('pfhl')
+          setTimeout(function () { el.classList.remove('pfhl') }, 2700)
+        }
+        if (x.k) pfield(x.k)
       }
       if (x.u) {
         var rl = document.createElement('button')
@@ -204,6 +216,17 @@ function prender(ls) {
     })
   })
   if (!ls.length) bx.innerHTML = '<p class="pok">everything checks out</p>'
+}
+
+function pfield(k) {
+  var f = pn.querySelector('label[data-k="' + k + '"]')
+  if (!f) return
+  f.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  f.classList.remove('pfhl')
+  void f.offsetWidth
+  f.classList.add('pfhl')
+  var i = f.querySelector('input:not([type=checkbox]), textarea, select')
+  if (i) setTimeout(function () { i.focus({ preventScroll: true }) }, 350)
 }
 
 function prelink(a, b) {

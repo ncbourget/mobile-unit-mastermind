@@ -300,6 +300,34 @@ body.mm {
   outline: 2px solid #e8a03a;
 }
 
+#pn label.pfhl {
+  border-radius: 4px;
+  animation: pfhl 2.6s ease-out;
+}
+
+#pn label.pfhl input, #pn label.pfhl textarea, #pn label.pfhl select {
+  animation: pfhi 2.6s ease-out;
+}
+
+.mm .b.pfhl {
+  animation: pfhb 2.6s ease-out;
+}
+
+@keyframes pfhb {
+  0%, 45% { box-shadow: 0 0 0 4px #fff45c, 0 0 0 6px #111; }
+  100% { box-shadow: 0 0 0 4px transparent, 0 0 0 6px transparent; }
+}
+
+@keyframes pfhl {
+  0%, 45% { background: #fff45c; box-shadow: 0 0 0 5px #fff45c; }
+  100% { background: transparent; box-shadow: 0 0 0 5px transparent; }
+}
+
+@keyframes pfhi {
+  0%, 45% { outline: 2px solid #111; outline-offset: 1px; }
+  100% { outline: 2px solid transparent; outline-offset: 1px; }
+}
+
 #pn .phq {
   width: 168px;
   margin: 6px 0 4px;
