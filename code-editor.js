@@ -15,9 +15,22 @@ async function codes() {
   return CODE
 }
 
+var MADE = null
+
+function made() {
+  var b = build(), f = Object.keys(b.f).sort(function (x, y) { return x == 'index.html' ? -1 : y == 'index.html' ? 1 : x < y ? -1 : 1 })
+  MADE = {}
+  f.forEach(function (p) { MADE[p] = b.f[p] })
+  MADE['mastermind.json'] = JSON.stringify(Object.assign({}, s, { out: b.now, mastermind: 1 }), null, 2) + '\n'
+  RUNTIME.forEach(function (p) { MADE[p] = null })
+}
+
 function crows() {
   cfl.innerHTML = ''
-  if (!CODE.length) cfl.innerHTML = '<p class="cn0">no css, js or html files of your own yet. make one with new file</p>'
+  var h = document.createElement('h6')
+  h.textContent = 'your files'
+  cfl.appendChild(h)
+  if (!CODE.length) cfl.insertAdjacentHTML('beforeend', '<p class="cn0">none yet. make one with new file</p>')
   CODE.forEach(function (p) {
     var a = document.createElement('a')
     a.textContent = p + (CEDIT[p] != null ? ' •' : '')
@@ -25,21 +38,35 @@ function crows() {
     a.onclick = function () { copen(p) }
     cfl.appendChild(a)
   })
+  h = document.createElement('h6')
+  h.textContent = 'made by Mastermind'
+  cfl.appendChild(h)
+  Object.keys(MADE || {}).forEach(function (p) {
+    var a = document.createElement('a')
+    a.textContent = p
+    a.className = 'mm' + (p == COPEN ? ' on' : '')
+    a.onclick = function () { copen(p) }
+    cfl.appendChild(a)
+  })
 }
 
 function cbar() {
-  var h = cw2.querySelector('.cnm'), u = cw2.querySelector('.cuse'), ck = u.querySelector('input'), sv = cw2.querySelector('.csv')
-  h.textContent = COPEN || 'pick a file'
+  var h = cw2.querySelector('.cnm'), u = cw2.querySelector('.cuse'), ck = u.querySelector('input'), sv = cw2.querySelector('.csv'), ro = !!(MADE && COPEN in MADE)
+  h.textContent = !COPEN ? 'pick a file' : ro ? COPEN + ' · made by Mastermind from your design, rebuilt every save. read only' : COPEN
   cta.disabled = !COPEN
+  cta.readOnly = ro
+  cw2.classList.toggle('ro', ro)
+  sv.hidden = ro
   sv.disabled = !COPEN || CEDIT[COPEN] == null
-  var x = COPEN && /\.(css|js)$/i.test(COPEN) && COPEN != 'fonts.css'
+  var x = COPEN && !ro && /\.(css|js)$/i.test(COPEN) && COPEN != 'fonts.css'
   u.hidden = !x
   if (x) ck.checked = (s.extra || []).indexOf(COPEN) > -1
 }
 
 async function copen(p) {
   COPEN = p
-  cta.value = CEDIT[p] != null ? CEDIT[p] : (await STORE.readText(p)) || ''
+  if (MADE && p in MADE) cta.value = MADE[p] != null ? MADE[p] : await ownFile(p)
+  else cta.value = CEDIT[p] != null ? CEDIT[p] : (await STORE.readText(p)) || ''
   crows()
   cbar()
   cta.focus()
@@ -50,7 +77,8 @@ async function code() {
   cw2.hidden = false
   cfl.innerHTML = '<p class="cn0">loading...</p>'
   await codes()
-  if (COPEN && CODE.indexOf(COPEN) < 0) COPEN = null
+  made()
+  if (COPEN && CODE.indexOf(COPEN) < 0 && !(COPEN in MADE)) COPEN = null
   crows()
   if (COPEN) copen(COPEN)
   else {
@@ -73,14 +101,14 @@ async function csave() {
 }
 
 cta.oninput = function () {
-  if (!COPEN) return
+  if (!COPEN || cta.readOnly) return
   CEDIT[COPEN] = cta.value
   crows()
   cbar()
 }
 
 cta.onkeydown = function (e) {
-  if (e.key == 'Tab') {
+  if (e.key == 'Tab' && !cta.readOnly) {
     e.preventDefault()
     var a = cta.selectionStart, b = cta.selectionEnd
     cta.setRangeText('  ', a, b, 'end')

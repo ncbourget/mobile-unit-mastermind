@@ -503,6 +503,36 @@ body.mm {
   background: #fff45c;
 }
 
+#code .cfl h6 {
+  margin: 12px 8px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #999;
+}
+
+#code .cfl h6:first-child {
+  margin-top: 4px;
+}
+
+#code .cfl a.mm {
+  color: #777;
+}
+
+#code .cfl a.mm.on {
+  color: #111;
+}
+
+#code.ro textarea {
+  color: #555;
+  background: #fafaf8;
+}
+
+#code .csv[hidden] {
+  display: none;
+}
+
 #code .cn0 {
   margin: 6px 8px;
   color: #888;
