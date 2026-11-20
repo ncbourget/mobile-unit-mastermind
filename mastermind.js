@@ -480,7 +480,7 @@ function fp(b) {
   return b.m
 }
 
-function relink(b) {
+function phrelink(b) {
   delete b.m
   if (b.on == 'p') delete b.on
 }
@@ -1071,48 +1071,72 @@ function cfix(b, d) {
   else im.addEventListener('load', ck)
 }
 
+function cstart(b, w, h) {
+  if (b.iw != null) return { x: b.ix || 0, y: b.iy || 0, w: b.iw, h: b.ih, r: b.ir || 0 }
+  var v = crfp(b), ar = b.ar || w / h, z = v.z / 100, iw = Math.max(w, h * ar) * z, ih = Math.max(h, w / ar) * z
+  var l = (w - iw) * v.x / 100, t = (h - ih) * v.y / 100
+  return { x: (l + iw / 2) / w * 100, y: (t + ih / 2) / h * 100, w: iw / w * 100, h: ih / h * 100, r: 0 }
+}
+
 function crop(b, d) {
   var im = d.querySelector('img.c-image')
   if (!im || b.fit || RO) return
   if (!im.naturalWidth) return im.addEventListener('load', function () { crop(b, elof(b)) }, { once: true })
-  var B = MOB ? mprox(b) : b, v = crfp(mob(b))
+  var B = MOB ? mprox(b) : b
   b.ar = Math.round(im.naturalWidth / im.naturalHeight * 10000) / 10000
-  B.cx = v.x
-  B.cy = v.y
-  B.cz = v.z
+  var v = cstart(mob(b), d.clientWidth, d.clientHeight)
+  B.ix = v.x
+  B.iy = v.y
+  B.iw = v.w
+  B.ih = v.h
+  B.ir = v.r
   draw()
   d = elof(b)
-  CRP = { b: b, B: B, d: d, im: d.querySelector('img.c-image'), v: v }
-  d.classList.add('crp')
-  var fr = document.createElement('i')
+  var fr = document.createElement('i'), bx = document.createElement('span'), ro = document.createElement('i')
   fr.className = 'cfr'
+  bx.className = 'cbx'
+  ro.className = 'cro'
+  ro.title = 'drag to turn the photo, shift snaps to 15°, double click resets'
+  bx.innerHTML = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].map(function (h) { return '<i class="ch ch-' + h + '" data-c="' + h + '"></i>' }).join('')
   d.appendChild(fr)
+  d.appendChild(bx)
+  d.appendChild(ro)
+  CRP = { b: b, B: B, d: d, im: d.querySelector('img.c-image'), box: bx, v: v }
+  d.classList.add('crp')
+  cpset()
   d.onwheel = function (e) {
     if (!CRP) return
     e.preventDefault()
-    cmv(v.x, v.y, v.z * Math.exp(-e.deltaY * .002))
+    var f = Math.exp(-e.deltaY * .002)
+    v.w *= f
+    v.h *= f
+    cpset()
   }
-  st.textContent = 'drag to move the photo, scroll to zoom, arrows nudge. esc or click outside when done'
+  st.textContent = 'drag to move, corners and sides resize, shift to stretch, the dot or option + corner turns it, scroll to zoom. esc or click outside when done'
 }
 
-function cmv(x, y, z) {
+function cpset() {
   var c = CRP, v = c.v
-  v.x = Math.max(0, Math.min(100, x))
-  v.y = Math.max(0, Math.min(100, y))
-  v.z = Math.max(100, Math.min(600, z))
-  c.im.style.setProperty('--x', v.x / 100)
-  c.im.style.setProperty('--y', v.y / 100)
-  c.im.style.setProperty('--z', v.z / 100)
+  ;[c.im, c.box].forEach(function (el) {
+    el.style.setProperty('--ix', v.x)
+    el.style.setProperty('--iy', v.y)
+    el.style.setProperty('--iw', v.w)
+    el.style.setProperty('--ih', v.h)
+    el.style.setProperty('--ir', v.r)
+  })
 }
 
 function cend(nd) {
   if (!CRP) return
   var c = CRP, v = c.v
   CRP = null
-  c.B.cx = Math.round(v.x * 10) / 10
-  c.B.cy = Math.round(v.y * 10) / 10
-  c.B.cz = Math.round(v.z)
+  c.B.ix = Math.round(v.x * 100) / 100
+  c.B.iy = Math.round(v.y * 100) / 100
+  c.B.iw = Math.round(v.w * 100) / 100
+  c.B.ih = Math.round(v.h * 100) / 100
+  c.B.ir = Math.round(v.r * 10) / 10
   st.textContent = ''
+  tip.style.display = 'none'
   dirty()
   if (nd) return
   draw()
@@ -1122,13 +1146,63 @@ function cend(nd) {
 function cdrag(e) {
   e.preventDefault()
   e.stopPropagation()
-  var c = CRP, d = c.d, v = c.v, w = d.clientWidth, h = d.clientHeight, ar = c.b.ar
-  var iw = Math.max(w, h * ar) * v.z / 100, ih = Math.max(h, w / ar) * v.z / 100, ow = iw - w, oh = ih - h, sx = e.clientX, sy = e.clientY, x0 = v.x, y0 = v.y
-  cap(d, e.pointerId)
-  d.onpointermove = function (e) {
-    cmv(ow > .5 ? x0 - (e.clientX - sx) / ow * 100 : x0, oh > .5 ? y0 - (e.clientY - sy) / oh * 100 : y0, v.z)
+  var c = CRP, d = c.d, v = c.v, W = d.clientWidth, H = d.clientHeight, fa = (c.b.rot || 0) * Math.PI / 180, t = e.target, h = t.dataset && t.dataset.c
+  var o = Object.assign({}, v), sx = e.clientX, sy = e.clientY
+  function loc(dx, dy, a) { return [dx * Math.cos(a) + dy * Math.sin(a), -dx * Math.sin(a) + dy * Math.cos(a)] }
+  function say(x, y, txt) {
+    tip.style.display = 'block'
+    tip.style.left = x + 14 + 'px'
+    tip.style.top = y + 14 + 'px'
+    tip.textContent = txt
   }
-  d.onpointerup = function () { d.onpointermove = d.onpointerup = null }
+  if (t.classList.contains('cro') && e.detail == 2) {
+    v.r = 0
+    return cpset()
+  }
+  cap(d, e.pointerId)
+  if (t.classList.contains('cro') || h && h.length == 2 && e.altKey) {
+    var r = c.box.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, a0 = Math.atan2(e.clientY - cy, e.clientX - cx)
+    d.onpointermove = function (e) {
+      var a = o.r + (Math.atan2(e.clientY - cy, e.clientX - cx) - a0) * 180 / Math.PI
+      a = ((a + 540) % 360) - 180
+      a = e.shiftKey ? Math.round(a / 15) * 15 : Math.round(a * 10) / 10
+      v.r = a
+      cpset()
+      say(e.clientX, e.clientY, 'turn ' + a + '°')
+    }
+  } else if (h) {
+    var hx = /e/.test(h) ? 1 : /w/.test(h) ? -1 : 0, hy = /s/.test(h) ? 1 : /n/.test(h) ? -1 : 0, w0 = o.w / 100 * W, h0 = o.h / 100 * H, ir = o.r * Math.PI / 180
+    d.onpointermove = function (e) {
+      var f = loc(e.clientX - sx, e.clientY - sy, fa), l = loc(f[0], f[1], ir), w1, h1
+      if (e.shiftKey) {
+        w1 = Math.max(8, w0 + hx * l[0])
+        h1 = Math.max(8, h0 + hy * l[1])
+      } else {
+        var k = hx && hy ? Math.max((w0 + hx * l[0]) / w0, (h0 + hy * l[1]) / h0) : hx ? (w0 + hx * l[0]) / w0 : (h0 + hy * l[1]) / h0
+        k = Math.max(8 / Math.min(w0, h0), k)
+        w1 = w0 * k
+        h1 = h0 * k
+      }
+      var mx = hx * (w1 - w0) / 2, my = hy * (h1 - h0) / 2
+      v.w = w1 / W * 100
+      v.h = h1 / H * 100
+      v.x = o.x + (mx * Math.cos(ir) - my * Math.sin(ir)) / W * 100
+      v.y = o.y + (mx * Math.sin(ir) + my * Math.cos(ir)) / H * 100
+      cpset()
+      say(e.clientX, e.clientY, Math.round(w1) + ' × ' + Math.round(h1) + ' px' + (e.shiftKey ? ' · stretching' : ''))
+    }
+  } else {
+    d.onpointermove = function (e) {
+      var f = loc(e.clientX - sx, e.clientY - sy, fa)
+      v.x = o.x + f[0] / W * 100
+      v.y = o.y + f[1] / H * 100
+      cpset()
+    }
+  }
+  d.onpointerup = function () {
+    d.onpointermove = d.onpointerup = null
+    tip.style.display = 'none'
+  }
 }
 
 document.addEventListener('pointerdown', function (e) {
@@ -1613,7 +1687,7 @@ function gopen() {
   GS0 = []
   gp.pad()
   gg.innerHTML = '<span>reading the font...</span>'
-  cset(o).then(function (c) {
+  cpset(o).then(function (c) {
     var by = {}
     c.u.forEach(function (x) { (by[blk(x)] = by[blk(x)] || []).push(x) })
     gsel.innerHTML = '<option value="">entire font (' + c.u.length + ')</option>'
@@ -2223,22 +2297,33 @@ function ovf(t, po, k, go, kd) {
 function pgpanel() {
   var p = pg()
   hd('page')
-  fld('title', p, 'title', 't')
+  fld('tab title', p, 'title', 't')
+  nt('the name in the browser tab, in bookmarks and in search results. it also names the page in the page menu')
+  var rt0 = (s.root || '/').replace(/\/?$/, '/')
   if (pi) {
     var l = document.createElement('label'), i = document.createElement('input')
-    l.textContent = 'address /'
+    l.textContent = 'web address'
     i.value = p.slug
+    i.spellcheck = false
     i.onchange = function () {
       var o = p.slug
       p.slug = i.value = slg(i.value)
+      if (p.slug == o) return
       relink(o, p.slug)
       CUR = p.slug
       dirty()
       tbr()
+      panel()
+      st.textContent = 'page moved from ' + rt0 + o + '/ to ' + rt0 + p.slug + '/. links inside the site were updated'
     }
     l.appendChild(i)
     pn.appendChild(l)
-  } else nt('home page, lives at /')
+    ns('lives at ' + rt0 + p.slug + '/')
+    nt('lowercase letters, numbers and dashes. links to it inside your site update by themselves, but links from other websites to the old address will stop working')
+  } else {
+    ns('web address: ' + rt0)
+    nt('the home page always lives at the top of the site. to give this design its own address, make another page the home page from the page menu at the top')
+  }
   hd('extra scripts and styles')
   xpick(p, false)
   if (CODE && CODE.some(function (x) { return /\.(css|js)$/i.test(x) })) nt('just for this page. they load on the live site and in preview, not here in the editor')
@@ -2914,7 +2999,7 @@ function pnl() {
     ns(lk0 ? 'phone: unlinked' : 'phone: linked to desktop')
     if (!lk0) nt('moving it or changing a setting here unlinks just that')
     if (lk0) btn('relink to desktop', function () {
-      relink(sel)
+      phrelink(sel)
       dirty(); draw(); panel()
     })
   }
@@ -3094,9 +3179,12 @@ function pnl() {
     fld('fit', sel, 'fit', 's', [['', t == 'banner' ? 'fill' : 'crop'], ['contain', 'whole image'], ['fill', 'stretch']].slice(0, t == 'banner' ? 2 : 3))
     if (t == 'image' && !sel.fit && sel.src) {
       var B0 = sel.__pb || sel
-      btn('move and zoom the photo', function () { var d = elof(B0); if (d) crop(B0, d) })
-      nt('or double click the photo on the canvas. drag it around inside its box, scroll to zoom, arrows nudge, esc when done')
-      if (sel.cx != null || sel.cy != null || sel.cz) {
+      btn('move, resize and turn the photo', function () { var d = elof(B0); if (d) crop(B0, d) })
+      nt('or double click the photo on the canvas. drag to move, corners and sides resize, hold shift to stretch, the dot above the box or option + a corner turns it. esc when done')
+      if (sel.iw != null) {
+        fld('turn °', sel, 'ir', 'o')
+        btn('reset crop', function () { ;['ix', 'iy', 'iw', 'ih', 'ir', 'cx', 'cy', 'cz', 'fp'].forEach(function (k) { delete sel[k] }); dirty(); draw(); panel() })
+      } else if (sel.cx != null || sel.cy != null || sel.cz) {
         fld('zoom %', sel, 'cz', 'o')
         btn('reset crop', function () { delete sel.cx; delete sel.cy; delete sel.cz; delete sel.fp; dirty(); draw(); panel() })
       }
@@ -3481,14 +3569,15 @@ document.onkeydown = function (e) {
   var m = e.metaKey || e.ctrlKey, k = e.key.toLowerCase()
   if (CRP && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
     var v = CRP.v, n = e.shiftKey ? 5 : 1
-    if (e.key == 'Escape' || e.key == 'Enter') cend()
-    else if (e.key == 'ArrowLeft') cmv(v.x + n, v.y, v.z)
-    else if (e.key == 'ArrowRight') cmv(v.x - n, v.y, v.z)
-    else if (e.key == 'ArrowUp') cmv(v.x, v.y + n, v.z)
-    else if (e.key == 'ArrowDown') cmv(v.x, v.y - n, v.z)
-    else if (e.key == '=' || e.key == '+') cmv(v.x, v.y, v.z * 1.1)
-    else if (e.key == '-') cmv(v.x, v.y, v.z / 1.1)
+    if (e.key == 'Escape' || e.key == 'Enter') return cend()
+    else if (e.key == 'ArrowLeft') v.x -= n
+    else if (e.key == 'ArrowRight') v.x += n
+    else if (e.key == 'ArrowUp') v.y -= n
+    else if (e.key == 'ArrowDown') v.y += n
+    else if (e.key == '=' || e.key == '+') { v.w *= 1.1; v.h *= 1.1 }
+    else if (e.key == '-') { v.w /= 1.1; v.h /= 1.1 }
     else return
+    cpset()
     e.preventDefault()
     return
   }
