@@ -200,6 +200,7 @@ pre {
 <li><a href="#saving">saving and overwriting</a></li>
 <li><a href="#freeform">grid or freeform</a></li>
 <li><a href="#coded">sites you coded yourself</a></li>
+<li><a href="#phone">phone preview</a></li>
 <li><a href="#codespace">Codespaces</a></li>
 <li><a href="#inside">inside your site</a></li>
 <li><a href="#private">private on Cloudflare</a></li>
@@ -231,7 +232,7 @@ pre {
 <ul>
 <li><b>open a folder</b> only works in Chrome and Edge (and other browsers built on Chrome, like Brave, Arc and Opera). Safari and Firefox don't let websites open a folder on your computer.</li>
 <li><b>connect a GitHub repo</b> and <b>start in this browser</b> work in any up to date browser.</li>
-<li>Mastermind is built for a laptop or desktop screen. it opens on a tablet but it's cramped, and phones are not supported.</li>
+<li>Mastermind is built for a laptop or desktop. it opens on a tablet but it's cramped. on a phone it won't open at all, and shows its address so you can open it on a computer instead. to see your site on a phone while you design, use phone preview.</li>
 <li>if photos or fonts stop showing up after a hard reload (shift + reload), reload once more the normal way.</li>
 </ul>
 </section>
@@ -308,6 +309,35 @@ pre {
 <li>Mastermind redraws the page when someone switches language or a screen crosses the phone size. a script that sets things up once can listen for <code>mastermind-drawn</code> on <code>document</code> to set them up again.</li>
 <li>to put your own html on a page, use an <b>embed</b> block. it sits right on the page, so your css and js reach it.</li>
 <li>your files show in preview and on the live site, not inside the editor itself, so your css can't break the editor.</li>
+</ul>
+</section>
+
+<section id="phone">
+<h2>phone preview</h2>
+<p>see your site on a real phone while you design it. the phone shows the page you're on and updates every time you change something, before you save.</p>
+<h3>what it needs</h3>
+<ul>
+<li><b>Node</b>, a free program that runs Mastermind's little server on your computer. check if you have it by typing <code>node -v</code> in a terminal. if that prints a number, you're set. if not, download it from <a href="https://nodejs.org/en/download" target="_blank" rel="noopener">nodejs.org</a> and install it once.</li>
+<li>Mastermind's files on your computer: either installed inside your site (see <a href="#inside">putting Mastermind inside your site</a>) or downloaded anywhere.</li>
+<li>the phone and the computer on the same Wi-Fi. no cable needed, for iPhone or Android.</li>
+</ul>
+<h3>start it</h3>
+<p>open a terminal in your site's folder and run:</p>
+<pre>node mastermind/serve.js</pre>
+<p>if you downloaded Mastermind somewhere else, run that copy's <code>serve.js</code> while you're in your site's folder, for example <code>node ~/Downloads/mobile-unit-mastermind/serve.js</code>.</p>
+<ol>
+<li>Mastermind opens in your browser, already connected to the folder. no folder picking and no token, and it works in any browser.</li>
+<li>in the dev tab, under <b>phone preview</b>, you'll see an address like <code>http://192.168.1.20:8000/mastermind/phone.html</code>. open it on your phone.</li>
+<li>design on the computer and watch the phone. tap links on the phone to look at other pages.</li>
+<li>press ctrl+c in the terminal when you're done.</li>
+</ol>
+<h3>good to know</h3>
+<ul>
+<li>only the computer running the server can save. phones and anything else on the Wi-Fi can only look, at your site and the live preview. don't run it on a network you don't trust, like café Wi-Fi.</li>
+<li>if port 8000 is taken, pick another: <code>node mastermind/serve.js 8001</code>.</li>
+<li>each start makes a new private link for the editor. if you restart the server, use the link it prints.</li>
+<li>Android over a cable also works: run <code>adb reverse tcp:8000 tcp:8000</code>, then open <code>localhost:8000/mastermind/phone.html</code> on the phone.</li>
+<li>why Node isn't included: it's a large program made separately for each kind of computer, and it needs its own security updates. bundling it would add a big file to every site's repo. installing it once from nodejs.org keeps it up to date.</li>
 </ul>
 </section>
 
