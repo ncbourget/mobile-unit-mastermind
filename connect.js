@@ -34,14 +34,14 @@ async function answerFile(e) {
 }
 
 async function startWorker() {
-  if (!('serviceWorker' in navigator)) throw new Error('this browser cannot run mastermind. try chrome or edge')
+  if (!('serviceWorker' in navigator)) throw new Error('this browser cannot run Mastermind. try Chrome or Edge')
   var sw = navigator.serviceWorker
   sw.addEventListener('message', answerFile)
   sw.startMessages()
   try {
     await sw.register('site-file-worker.js')
   } catch (e) {
-    throw new Error('this browser is blocking the part of mastermind that loads photos and fonts. you can still design and save, but photos won\'t show. chrome or edge work best')
+    throw new Error('this browser is blocking the part of Mastermind that loads photos and fonts. you can still design and save, but photos won\'t show. Chrome or Edge work best')
   }
   await sw.ready
   if (sw.controller) return
@@ -101,6 +101,11 @@ async function connected(store) {
   }
   OLD_JSON = old
   STORE = store
+  CODE = null
+  CLOAD = null
+  CEDIT = {}
+  COPEN = null
+  cw2.hidden = true
   SITE_HAD_JSON = !!j
   s = j || newSite(store.startName || store.name)
   sel = null
@@ -120,7 +125,7 @@ async function connected(store) {
   chk()
   draw()
   panel()
-  st.textContent = (store.kind == 'github' ? 'github: ' + store.repo + ' · ' + store.branch : store.kind == 'browser' ? 'in this browser: ' + store.name : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet') + (old ? ' · site.json becomes mastermind.json when you save' : '')
+  st.textContent = (store.kind == 'github' ? 'GitHub: ' + store.repo + ' · ' + store.branch : store.kind == 'browser' ? 'in this browser: ' + store.name : 'folder: ' + store.name) + (j ? '' : ' · new site, nothing saved yet') + (old ? ' · site.json becomes mastermind.json when you save' : '')
   dlStatus()
 }
 
@@ -211,7 +216,7 @@ async function save() {
         used[n] = 1
         bk.push([rk[0], n, rk[1]])
       }
-      if (!confirm('these files are already in ' + STORE.name + ' and were not made by mastermind:\n\n' + bk.map(function (x) { return x[0] + '  →  copy kept as ' + x[1] }).join('\n') + '\n\nmastermind keeps a copy of each one, then saves its own version over it. go ahead?')) {
+      if (!confirm('these files are already in ' + STORE.name + ' and were not made by Mastermind:\n\n' + bk.map(function (x) { return x[0] + '  →  copy kept as ' + x[1] }).join('\n') + '\n\nmastermind keeps a copy of each one, then saves its own version over it. go ahead?')) {
         s.out = oldOut
         st.textContent = 'not saved, nothing was changed'
         return
@@ -228,7 +233,7 @@ async function save() {
     if (OLD_JSON) await STORE.remove('site.json')
     for (var o of b.del) await STORE.removePage(o)
     if (gh) st.textContent = 'pushing to ' + STORE.repo + '...'
-    var res = await STORE.finish((note || '').trim() || 'update pages from mastermind')
+    var res = await STORE.finish((note || '').trim() || 'update pages from Mastermind')
     SITE_HAD_JSON = true
     OLD_JSON = false
     dirt = false
@@ -255,7 +260,7 @@ function showConnect() {
   document.body.classList.add('cnon')
   var f = cn.querySelector('#cn-folder'), again = cn.querySelector('#cn-again'), fn = cn.querySelector('.cn-folder-note')
   f.disabled = !FolderStorage.supported()
-  fn.textContent = FolderStorage.supported() ? 'pick the folder your site lives in, or an empty one to start a new site.' : 'this browser cannot open folders. use chrome or edge, or connect a github repo.'
+  fn.textContent = FolderStorage.supported() ? 'pick the folder your site lives in, or an empty one to start a new site.' : 'this browser cannot open folders. use Chrome or Edge, or connect a GitHub repo.'
   again.hidden = true
   if (FolderStorage.supported()) FolderStorage.recall().then(function (h) {
     if (!h) return
@@ -274,7 +279,7 @@ function showConnect() {
   nf.disabled = !FolderStorage.supported()
   cn.querySelector('.cn-new-note').textContent = FolderStorage.supported()
     ? 'start in this browser keeps the site here until you download it as a folder. make it in a new folder saves straight into a folder you make in the picker.'
-    : 'it\'s kept in this browser until you download it as a folder. making a new folder needs chrome or edge.'
+    : 'it\'s kept in this browser until you download it as a folder. making a new folder needs Chrome or Edge.'
   cont.hidden = true
   BrowserStorage.current().then(function (m) {
     if (!m) return

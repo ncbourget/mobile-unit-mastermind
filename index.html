@@ -93,6 +93,12 @@
   </div>
 </div>
 <div id="pn"></div>
+<div id="code" hidden>
+  <div class="cw">
+    <div class="ch"><b>site code</b><span class="cnm"></span><label class="cuse ck" hidden><input type="checkbox">use on every Mastermind page</label><button class="cnew">new file</button><button class="csv">save file</button><a class="cx">×</a></div>
+    <div class="cb"><div class="cfl"></div><textarea spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>
+  </div>
+</div>
 <div id="connect" hidden>
   <div class="cn">
     <button class="cn-close" title="back to the editor" hidden>×</button>
@@ -107,30 +113,35 @@
       <div class="cn-row cn-cont" hidden><button id="cn-continue" class="cn-alt"></button><p class="cn-dl"></p></div>
     </section>
     <section>
-      <h2>existing site? open a folder on this computer</h2>
+      <h2>existing site? open a folder on this computer <a class="cn-q" href="about.html#browsers" title="which browsers can open a folder">?</a></h2>
       <p class="cn-folder-note"></p>
       <div class="cn-row"><button id="cn-folder">open a folder</button><button id="cn-again" hidden></button></div>
     </section>
     <section>
-      <h2>existing site? connect a github repo</h2>
+      <h2>existing site? connect a GitHub repo</h2>
       <form id="cn-gh" autocomplete="off">
         <label>repo<input name="repo" placeholder="owner/your-site" spellcheck="false" required></label>
         <label>branch<input name="branch" placeholder="the default branch" spellcheck="false"></label>
         <label>access token<input name="token" type="password" spellcheck="false" required></label>
-        <p class="cn-help"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">make a token on github</a>: fine-grained, only this repo, repository permission contents: read and write.</p>
+        <p class="cn-help"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">make a token on GitHub</a>: fine-grained, only this repo, repository permission contents: read and write.</p>
         <label class="cn-ck"><input name="remember" type="checkbox">remember on this computer</label>
         <div class="cn-row"><button>connect</button><a href="#" class="cn-forget">forget the token</a></div>
       </form>
+    </section>
+    <section>
+      <h2>use it from your own site</h2>
+      <p>keep Mastermind at yoursite.com/mastermind/ behind a Cloudflare login, and start editing whenever you visit. the best setup if you edit often, or with a group. it takes a little setup.</p>
+      <a class="cn-btn" href="about.html#inside">how to set it up</a>
     </section>
     <p class="cn-err"></p>
     <section class="cn-read">
       <div>
         <h2>read this first</h2>
-        <p>which browsers work, where your files go, what gets overwritten and backed up, codespaces, and using mastermind with a group.</p>
+        <p>which browsers work, where your files go, what gets overwritten and backed up, Codespaces, and using Mastermind with a group.</p>
       </div>
       <a class="cn-btn" href="about.html">read this first</a>
     </section>
-    <p class="cn-note">nothing goes to a mastermind server. your files go straight between this browser and your folder or github, and the token stays in this browser.</p>
+    <p class="cn-note">nothing goes to a Mastermind server. your files go straight between this browser and your folder or GitHub, and the token stays in this browser.</p>
   </div>
 </div>
 <script src="render.js"></script>
@@ -145,6 +156,7 @@
 <script src="github-storage.js"></script>
 <script src="browser-storage.js"></script>
 <script src="zip-download.js"></script>
+<script src="code-editor.js"></script>
 <script src="connect.js"></script>
 </body>
 </html>
