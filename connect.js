@@ -33,6 +33,15 @@ async function answerFile(e) {
   }
 }
 
+document.addEventListener('error', function (e) {
+  var m = e.target, k = m && m.getAttribute && m.getAttribute('src') || '', i = k.indexOf('site/')
+  if (!STORE || !/^(IMG|VIDEO)$/.test(m.tagName) || i < 0 || k.indexOf('blob:') == 0 || m.dataset.fb) return
+  m.dataset.fb = 1
+  STORE.readFile(decodeURIComponent(k.slice(i + 5).split('?')[0])).then(function (f) {
+    if (f) m.src = URL.createObjectURL(f)
+  }, function () {})
+}, true)
+
 async function startWorker() {
   if (!('serviceWorker' in navigator)) throw new Error('this browser cannot run Mastermind. try Chrome or Edge')
   var sw = navigator.serviceWorker
@@ -50,12 +59,12 @@ async function startWorker() {
     new Promise(function (ok) { setTimeout(function () { ok(false) }, 2000) })
   ])
   if (got) return
-  if (!sessionStorage.getItem('mastermind-reloaded')) {
-    sessionStorage.setItem('mastermind-reloaded', '1')
+  var last = +sessionStorage.getItem('mastermind-reloaded') || 0
+  if (Date.now() - last > 15000) {
+    sessionStorage.setItem('mastermind-reloaded', Date.now())
     location.reload()
     await new Promise(function () {})
   }
-  throw new Error('photos cannot load until the page is reloaded normally')
 }
 
 function siteFonts(txt) {
