@@ -80,6 +80,7 @@ function evup() {
 }
 
 function draw() {
+  FRV = MOB
   if (!SB) {
     cv = cvd
     cvp.innerHTML = ''
@@ -264,6 +265,9 @@ function draw0() {
     tfit(d, b)
     if (!b.fix && !b.wp) mx = Math.max(mx, ps(b).y + ps(b).h)
   })
+  var fch = 0
+  bl.forEach(function (b) { if (b.type == 'image' && cfit(b, elof(b), 1)) fch = 1 })
+  if (fch && LAST != null) LAST = JSON.stringify(s)
   var end = MOB ? mx : Math.max(mx, plr(pg())), cw0 = cv.clientWidth - g.pad * 2, fb0 = 0
   all().forEach(function (b) { if (b.ag && !b.fix && !hid(b)) fb0 = Math.max(fb0, ((fpos(b).fy || 0) + (fpos(b).fh || 10)) * cw0 / 100) })
   if (fb0 > end * g.row) end = Math.ceil(fb0 / g.row)
@@ -636,7 +640,7 @@ function grab(e, b, d, rsz) {
   if (document.activeElement) document.activeElement.blur()
   var tc0 = b.type == 'table' && !rsz && tat(d, e)
   if (tc0 && e.shiftKey && TS && TS.id == b.id) { tcell(b, tc0, 1); return }
-  if (e.shiftKey) { pick(b, 1); return }
+  if (e.shiftKey && !rsz) { pick(b, 1); return }
   if (SS.indexOf(b) < 0) pick(b)
   else if (sel != b) { sel = b; panel() }
   if (b.fix || b.lk) return
@@ -650,13 +654,22 @@ function grab(e, b, d, rsz) {
   var hi = Math.min.apply(0, gg.map(function (o) { return c - o.w - o.x }))
   var up = Math.min.apply(0, gg.map(function (o) { return o.y }))
   cap(d, e.pointerId)
-  var th = rsz && b.rot ? -b.rot * Math.PI / 180 : 0
+  var th = rsz && b.rot ? -b.rot * Math.PI / 180 : 0, r0 = rsz, im0 = rsz && b.type == 'image' && mob(b).iw != null, tg = false, w00 = d.offsetWidth, h00 = d.offsetHeight
   d.onpointermove = function (e) {
     var px = e.clientX - sx, py = e.clientY - sy
     if (th) {
       var rx = px * Math.cos(th) - py * Math.sin(th)
       py = px * Math.sin(th) + py * Math.cos(th)
       px = rx
+    }
+    tg = im0 && (e.metaKey || e.ctrlKey)
+    rsz = r0
+    if (tg && e.shiftKey) {
+      rsz = { e: 'se', w: 'sw', n: 'ne', s: 'se' }[r0] || r0
+      var hx = /e/.test(rsz) ? 1 : -1, hy = /s/.test(rsz) ? 1 : -1, ks = r0.length == 1 ? (/e|w/.test(r0) ? (w00 + hx * px) / w00 : (h00 + hy * py) / h00) : Math.max((w00 + hx * px) / w00, (h00 + hy * py) / h00)
+      ks = Math.max(8 / Math.min(w00, h00), ks)
+      px = hx * (w00 * ks - w00)
+      py = hy * (h00 * ks - h00)
     }
     var dx = Math.round(px / k.w), dy = Math.round(py / k.h)
     if (!dx && !dy && !moved && (!b.ag || Math.abs(px) + Math.abs(py) < 3)) return
@@ -676,6 +689,7 @@ function grab(e, b, d, rsz) {
       }
       lay(d, b, 1)
       tfit(d, b)
+      if (b.type == 'image' && !tg) cfit(b, d, 0)
     } else if (rsz) {
       var q = MOB ? mpos(b) : b, o = og[0], fh = b.type == 'text' && !b.fm
       if (/e/.test(rsz)) q.w = Math.max(1, Math.min(c - o.x, o.w + dx))
@@ -690,6 +704,7 @@ function grab(e, b, d, rsz) {
       }
       lay(d, b, 1)
       tfit(d, b)
+      if (b.type == 'image' && !tg) cfit(b, d, 0)
     } else {
       dx = Math.max(lo, Math.min(hi, dx))
       dy = Math.max(-up, dy)
@@ -715,7 +730,7 @@ function grab(e, b, d, rsz) {
   d.onpointerup = function () {
     d.onpointermove = d.onpointerup = null
     tip.style.display = 'none'
-    if (moved) { dirty(); draw(); panel() }
+    if (moved) { dirty(); FRS = tg ? b : null; draw(); FRS = null; panel() }
     else if (tc0 && !rsz) tcell(b, tc0)
   }
 }
@@ -1069,6 +1084,37 @@ function cfix(b, d) {
   }
   if (im.complete) ck()
   else im.addEventListener('load', ck)
+}
+
+var FR = new WeakMap(), FRV = false, FRS = null
+
+function cfit(b, el, commit) {
+  var v = mob(b)
+  if (!el || v.iw == null || (CRP && CRP.b == b)) return
+  var r = { l: el.offsetLeft, t: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }, W = cw(), slot = FR.get(b) || {}, k = MOB ? 'p' : 'd', p = slot[k]
+  function keep() { slot[k] = { l: r.l, t: r.t, w: r.w, h: r.h, W: W, v: { x: v.ix || 0, y: v.iy || 0, w: v.iw, h: v.ih } }; FR.set(b, slot) }
+  if (!p || p.W != W || MOB != FRV || !r.w || !r.h || FRS == b) return keep()
+  if (Math.abs(p.w - r.w) < .5 && Math.abs(p.h - r.h) < .5) {
+    if (commit) keep()
+    return
+  }
+  var n = { x: (p.l + p.v.x / 100 * p.w - r.l) / r.w * 100, y: (p.t + p.v.y / 100 * p.h - r.t) / r.h * 100, w: p.v.w * p.w / r.w, h: p.v.h * p.h / r.h }
+  var im = el.querySelector('img.c-image.cf')
+  if (im) {
+    im.style.setProperty('--ix', n.x)
+    im.style.setProperty('--iy', n.y)
+    im.style.setProperty('--iw', n.w)
+    im.style.setProperty('--ih', n.h)
+  }
+  if (!commit) return
+  var B = MOB ? mprox(b) : b
+  B.ix = Math.round(n.x * 100) / 100
+  B.iy = Math.round(n.y * 100) / 100
+  B.iw = Math.round(n.w * 100) / 100
+  B.ih = Math.round(n.h * 100) / 100
+  v = mob(b)
+  keep()
+  return true
 }
 
 function cstart(b, w, h) {
