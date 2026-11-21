@@ -3793,6 +3793,15 @@ body:not(.sb) #cvp {
   font-family: Helvetica, Arial, sans-serif;
 }
 
+#connect ::selection {
+  color: #fff;
+  background: #2b5cff;
+}
+
+#connect .cn h1 span::selection {
+  -webkit-text-fill-color: #fff;
+}
+
 #connect[hidden] {
   display: none;
 }
@@ -3997,6 +4006,15 @@ body.on-phone {
 
 .cn .cn-new-note {
   margin: 12px 0 0;
+}
+
+.cn .cn-del {
+  color: #fff;
+  background: #c4291c;
+}
+
+.cn .cn-del:hover {
+  background: #a11f14;
 }
 
 .cn .cn-dl {
