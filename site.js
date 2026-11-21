@@ -35,6 +35,7 @@ function load() {
         live().then(function (j) {
           s = j
           mig(s)
+          ico()
           LS = s.langs || ['en']
           if (LP0 && LP0.lang && LS.indexOf(LP0.lang) > -1) L = LP0.lang
           if (LP0) CUR = LP0.page || ''
@@ -70,9 +71,21 @@ if (MM || LV) document.addEventListener('click', function (e) {
   location.href = location.pathname + '?mm=1&p=' + encodeURIComponent(sl)
 })
 
+function ico() {
+  if (!MM && !LV) return
+  var l = document.querySelector('link[rel=icon]')
+  if (!l) {
+    l = document.createElement('link')
+    l.rel = 'icon'
+    document.head.appendChild(l)
+  }
+  l.href = rp(s.icon || 'assets/favicon.svg')
+}
+
 load().then(function (j) {
   s = j
   mig(s)
+  ico()
   LS = s.langs || ['en']
   L = localStorage.getItem('lng')
   if (LS.indexOf(L) < 0) L = LS[0]
