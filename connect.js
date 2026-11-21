@@ -298,7 +298,7 @@ function showConnect() {
     sp.textContent = w[0]
     dn.textContent = ''
     dn.appendChild(sp)
-    if (m.kept === false) dn.appendChild(document.createTextNode(' · this browser may clear it if your disk fills up'))
+    if (m.kept === false) dn.appendChild(document.createTextNode(' · you may lose your draft if your disk fills up, history erased or cache cleared'))
     dn.className = 'cn-dl' + (w[1] ? ' warn' : '')
     dn.hidden = !w[0] && m.kept !== false
     nb.textContent = '"' + m.name + '"'
@@ -346,6 +346,24 @@ cn.querySelector('#cn-new-browser').onclick = function () {
     return b
   })
 }
+cn.querySelector('#cn-delete').onclick = async function () {
+  var m = await BrowserStorage.current()
+  if (!m) return showConnect()
+  if (!confirm('delete "' + m.name + '" from this browser? its pages and photos are gone for good, and this can\'t be undone.' + (m.downloaded ? '' : '\n\nit has never been downloaded.') + '\n\ndelete it?')) return
+  await BrowserStorage.erase()
+  try { localStorage.removeItem('mastermind-draft:browser:' + m.made) } catch (e) {}
+  if (STORE && STORE.kind == 'browser') {
+    STORE = null
+    dirt = false
+    s = newSite('untitled')
+    setup()
+    LAST = JSON.stringify(s)
+    st.textContent = ''
+  }
+  showConnect()
+  cnError('"' + m.name + '" was deleted from this browser')
+}
+
 cn.querySelector('#cn-continue').onclick = function () {
   tryConnect(async function () {
     var b = await BrowserStorage.reopen()

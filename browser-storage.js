@@ -41,6 +41,11 @@ BrowserStorage.start = async function (name) {
   return new BrowserStorage(m)
 }
 
+BrowserStorage.erase = async function () {
+  await BrowserStorage.run('files', 'readwrite', function (o) { return o.clear() })
+  await BrowserStorage.run('meta', 'readwrite', function (o) { return o.clear() })
+}
+
 BrowserStorage.reopen = async function () {
   var m = await BrowserStorage.current()
   return m ? new BrowserStorage(m) : null
