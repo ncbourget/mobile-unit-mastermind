@@ -3490,7 +3490,7 @@ body:not(.sb) #cvp {
   cursor: move;
 }
 
-.mm .b.crp img.cz {
+.mm .b.crp img.cz, .mm .b.crp img.cf {
   clip-path: none;
 }
 

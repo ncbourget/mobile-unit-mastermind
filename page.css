@@ -1035,6 +1035,17 @@ img.c-image.cf {
   height: calc(var(--ih) * 1cqh);
   object-fit: fill;
   transform: rotate(calc(var(--ir) * 1deg));
+  --a: calc(var(--ir) * 1deg);
+  --cx: calc(var(--ix) * 1cqw);
+  --cy: calc(var(--iy) * 1cqh);
+  --hw: calc(var(--iw) * .5cqw);
+  --hh: calc(var(--ih) * .5cqh);
+  clip-path: polygon(
+    calc(cos(var(--a)) * (0px - var(--cx)) + sin(var(--a)) * (0px - var(--cy)) + var(--hw)) calc(cos(var(--a)) * (0px - var(--cy)) - sin(var(--a)) * (0px - var(--cx)) + var(--hh)),
+    calc(cos(var(--a)) * (100cqw - var(--cx)) + sin(var(--a)) * (0px - var(--cy)) + var(--hw)) calc(cos(var(--a)) * (0px - var(--cy)) - sin(var(--a)) * (100cqw - var(--cx)) + var(--hh)),
+    calc(cos(var(--a)) * (100cqw - var(--cx)) + sin(var(--a)) * (100cqh - var(--cy)) + var(--hw)) calc(cos(var(--a)) * (100cqh - var(--cy)) - sin(var(--a)) * (100cqw - var(--cx)) + var(--hh)),
+    calc(cos(var(--a)) * (0px - var(--cx)) + sin(var(--a)) * (100cqh - var(--cy)) + var(--hw)) calc(cos(var(--a)) * (100cqh - var(--cy)) - sin(var(--a)) * (0px - var(--cx)) + var(--hh))
+  );
 }
 
 img.c-image.cz {
