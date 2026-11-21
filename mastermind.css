@@ -314,12 +314,12 @@ body.mm {
 }
 
 @keyframes pfhb {
-  0%, 45% { box-shadow: 0 0 0 4px #fff45c, 0 0 0 6px #111; }
+  0%, 45% { box-shadow: 0 0 0 4px #ffff00, 0 0 0 6px #111; }
   100% { box-shadow: 0 0 0 4px transparent, 0 0 0 6px transparent; }
 }
 
 @keyframes pfhl {
-  0%, 45% { background: #fff45c; box-shadow: 0 0 0 5px #fff45c; }
+  0%, 45% { background: #ffff00; box-shadow: 0 0 0 5px #ffff00; }
   100% { background: transparent; box-shadow: 0 0 0 5px transparent; }
 }
 
@@ -528,7 +528,7 @@ body.mm {
 }
 
 #code .cfl a.on {
-  background: #fff45c;
+  background: #ffff00;
 }
 
 #code .cfl h6 {
@@ -683,7 +683,7 @@ body.mm {
 }
 
 .lbd .lt a.on i {
-  color: #fff45c;
+  color: #ffff00;
 }
 
 .lg a.fd {
@@ -691,7 +691,7 @@ body.mm {
   flex-direction: column;
   justify-content: flex-end;
   padding: 10px;
-  background: #fff45c;
+  background: #ffff00;
   color: #111;
   box-sizing: border-box;
 }
@@ -999,7 +999,7 @@ body.mm {
   left: 0;
   right: 250px;
   z-index: 48;
-  background: #fff45c;
+  background: #ffff00;
   border-bottom: 1px solid #000;
   padding: 8px 14px;
   font-size: 13px;
@@ -1169,7 +1169,7 @@ body.mm {
 }
 
 #fpk .fr.on {
-  background: #fff45c;
+  background: #ffff00;
 }
 
 #pn .tbs {
@@ -2135,7 +2135,7 @@ body.mm {
 }
 
 #lab .lgg a.on {
-  background: #fff45c;
+  background: #ffff00;
   color: #111;
 }
 
@@ -2177,7 +2177,7 @@ body.mm {
 }
 
 #lab .lft button.on b {
-  color: #fff45c;
+  color: #ffff00;
 }
 
 #pn .scr {
@@ -2244,7 +2244,7 @@ body.mm {
 }
 
 #pn .tbs a:nth-child(2) {
-  background: #fff45c;
+  background: #ffff00;
   color: #111;
 }
 
@@ -2478,12 +2478,12 @@ body.mm {
 }
 
 #lab .lst.on {
-  color: #fff45c;
+  color: #ffff00;
 }
 
 #lab header .lsv {
-  background: #fff45c;
-  border-color: #fff45c;
+  background: #ffff00;
+  border-color: #ffff00;
   color: #111;
 }
 
@@ -2513,7 +2513,7 @@ body.mm {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: #fff45c;
+  background: #ffff00;
   border-bottom: 1px solid #111;
   font-size: 12px;
 }
@@ -2692,7 +2692,7 @@ body.mm {
   right: 8px;
   padding: 1px 5px;
   background: #111;
-  color: #fff45c;
+  color: #ffff00;
   font: normal 10px Helvetica, Arial, sans-serif;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -3180,7 +3180,7 @@ body.mm {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: #fff45c;
+  background: #ffff00;
   border: 1px solid #111;
   box-shadow: 0 8px 28px rgba(0,0,0,.2);
   font: 12px Helvetica, Arial, sans-serif;
@@ -3340,7 +3340,7 @@ body.sb #mb {
 }
 
 #tb #sb.on {
-  background: #fff45c;
+  background: #ffff00;
   color: #111;
 }
 
@@ -3795,7 +3795,7 @@ body:not(.sb) #cvp {
 
 #connect ::selection {
   color: #fff;
-  background: #2b5cff;
+  background: #0000ff;
 }
 
 #connect .cn h1 span::selection {
@@ -4010,11 +4010,11 @@ body.on-phone {
 
 .cn .cn-del {
   color: #fff;
-  background: #c4291c;
+  background: #ff0000;
 }
 
 .cn .cn-del:hover {
-  background: #a11f14;
+  background: #d40000;
 }
 
 .cn .cn-dl {
@@ -4025,7 +4025,7 @@ body.on-phone {
 .cn .cn-dl.warn span, #st .warn {
   padding: 1px 8px;
   color: #111;
-  background: #fff45c;
+  background: #ffff00;
   border-radius: 10px;
 }
 
@@ -4052,7 +4052,7 @@ body.on-phone {
 }
 
 .cn .cn-q:hover {
-  background: #fff45c;
+  background: #ffff00;
 }
 
 .cn section > .cn-btn {
